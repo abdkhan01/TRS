@@ -1,0 +1,36 @@
+caveats:
+  descriptive_not_causal:
+    text: This is descriptive evidence only. It does not prove that a condition or intervention caused the observed safety outcome.
+    applies_to: [all_outputs]
+
+  location_match_uncertainty:
+    text: Location matching depends on the resolver method, buffer, and source geometry. Analysts should review the resolved location before official use.
+    applies_to: [intersection_safety_snapshot, corridor_safety_snapshot]
+
+  counting_rules_unapproved:
+    text: Counting rules are in draft status until reviewed by a Vision Zero analyst. Treat counts as preliminary.
+    applies_to: [collision_counts, ksi_counts]
+
+  ksi_party_grain:
+    text: The KSI dataset appears to include involved-party rows. Event-level KSI counts should use a validated collision identifier, not raw row counts.
+    applies_to: [ksi_counts, ksi_profiles]
+
+  traffic_volume_coverage_uneven:
+    text: Traffic volume and observed speed data are available only where and when counts were collected. Missing nearby counts do not mean low traffic or low speed.
+    applies_to: [speed_volume_context]
+
+  observed_speed_not_posted_limit:
+    text: Observed speed fields describe measured traffic speeds, not legal posted speed limits.
+    applies_to: [speed_context]
+
+  ase_historical_context_only:
+    text: Automated Speed Enforcement locations are treated as historical context. They should not be used as current enforcement recommendations.
+    applies_to: [historical_ase_context]
+
+  ase_locations_not_charges:
+    text: ASE camera-location records do not provide ticket volume, violation rates, compliance effects, or safety impact by themselves.
+    applies_to: [historical_ase_context]
+
+  speed_limit_source_incomplete:
+    text: The registered speed-limit reduction source has not been verified as a complete current posted-speed-limit authority.
+    applies_to: [speed_limit_context]

@@ -1,0 +1,45 @@
+refusals:
+  posted_speed_limit_source_missing:
+    status: refused
+    reason: Current posted speed limits cannot be determined because no approved complete posted-speed-limit source is registered.
+    allowed_alternative: Provide observed speed and volume context where available, with caveats.
+
+  csz_structured_source_missing:
+    status: refused
+    reason: Community Safety Zone status cannot be determined because no approved structured CSZ segment or boundary source is registered.
+    allowed_alternative: Provide general CSZ policy context from registered reference sources.
+
+  bylaw_source_missing:
+    status: refused
+    reason: Bylaw-backed restriction or legal authority cannot be determined until Municipal Code and bylaw schedules are ingested and approved.
+    allowed_alternative: State that legal authority is outside the current source set.
+
+  policy_history_source_missing:
+    status: refused
+    reason: Implementation rationale or policy history cannot be answered until council and staff reports are indexed and cited.
+    allowed_alternative: Provide descriptive safety evidence only.
+
+  intervention_inventory_missing:
+    status: refused
+    reason: Intervention presence, implementation date, and before/after analysis cannot be answered because an approved intervention inventory is not registered.
+    allowed_alternative: Provide collision trend and profile evidence without attributing effects to interventions.
+
+  ase_charges_source_missing:
+    status: refused
+    reason: ASE ticket volume, violation rate, compliance, or enforcement effect cannot be answered from camera-location records alone.
+    allowed_alternative: Provide historical ASE camera-location context only.
+
+  turn_restriction_source_missing:
+    status: refused
+    reason: No-right-turn-on-red restriction status or implementation history cannot be determined because no approved restriction inventory or bylaw schedule source is registered.
+    allowed_alternative: Provide collision profile evidence for the location without confirming the restriction.
+
+  causal_claim_not_supported:
+    status: refused
+    reason: Causal safety-impact claims are outside the MVP and require an approved evaluation design.
+    allowed_alternative: Provide descriptive before/after counts only if an intervention date and approved method are available.
+
+  recommendation_not_supported:
+    status: refused
+    reason: Intervention recommendations are outside the Phase 1/MVP scope.
+    allowed_alternative: Provide a cited evidence snapshot for analyst review.

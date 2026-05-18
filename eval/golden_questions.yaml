@@ -1,0 +1,67 @@
+# Initial golden questions for Phase 1/MVP behavior.
+# Expected outcomes are intentionally high level until query templates exist.
+
+questions:
+  - id: GQ-001
+    question: How many KSI collisions occurred at King St W and Spadina Ave in the last 5 years?
+    expected_template: ksi_trend
+    expected_status: answered_after_location_sources_available
+    required_sources: [ksi_collisions, toronto_intersection_file]
+    required_caveats: [ksi_party_grain, counting_rules_unapproved, location_match_uncertainty]
+
+  - id: GQ-002
+    question: Give me a safety snapshot for Sheppard Ave W and Leona Dr.
+    expected_template: intersection_safety_snapshot
+    expected_status: answered_after_location_sources_available
+    required_sources: [traffic_collisions, ksi_collisions, toronto_intersection_file]
+    required_caveats: [descriptive_not_causal, location_match_uncertainty]
+
+  - id: GQ-003
+    question: Show the collision profile near this intersection by road user, light, weather, and impact type.
+    expected_template: collision_profile
+    expected_status: answered_after_location_sources_available
+    required_sources: [traffic_collisions, ksi_collisions, toronto_intersection_file]
+
+  - id: GQ-004
+    question: What is the posted speed limit on this corridor?
+    expected_template: posted_speed_limit_lookup
+    expected_status: refused
+    required_refusal: posted_speed_limit_source_missing
+
+  - id: GQ-005
+    question: Is this road designated as a Community Safety Zone?
+    expected_template: csz_status_lookup
+    expected_status: refused
+    required_refusal: csz_structured_source_missing
+
+  - id: GQ-006
+    question: Why is right turn on red prohibited at Leona Dr and Sheppard Ave W?
+    expected_template: turn_restriction_policy_history
+    expected_status: refused
+    required_refusal: turn_restriction_source_missing
+
+  - id: GQ-007
+    question: Did the speed camera at this location reduce collisions?
+    expected_template: causal_evaluation
+    expected_status: refused
+    required_refusal: causal_claim_not_supported
+
+  - id: GQ-008
+    question: Were there historical ASE camera locations near this intersection?
+    expected_template: historical_ase_context
+    expected_status: answered_after_location_sources_available
+    required_sources: [automated_speed_enforcement_locations, toronto_intersection_file]
+    required_caveats: [ase_historical_context_only, ase_locations_not_charges]
+
+  - id: GQ-009
+    question: Show available traffic volume and observed speed context near this corridor.
+    expected_template: speed_volume_context
+    expected_status: answered_after_location_sources_available
+    required_sources: [traffic_volume, toronto_centreline]
+    required_caveats: [traffic_volume_coverage_uneven, observed_speed_not_posted_limit]
+
+  - id: GQ-010
+    question: What intervention should the City implement here?
+    expected_template: recommendation
+    expected_status: refused
+    required_refusal: recommendation_not_supported

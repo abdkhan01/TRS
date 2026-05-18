@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trs.local/schemas/evidence_packet.schema.json",
+  "title": "Vision Zero Evidence Packet",
+  "type": "object",
+  "required": [
+    "packet_id",
+    "created_at",
+    "question",
+    "template_id",
+    "status",
+    "location",
+    "parameters",
+    "results",
+    "sources",
+    "methods",
+    "caveats",
+    "refusals",
+    "query_metadata"
+  ],
+  "properties": {
+    "packet_id": {
+      "type": "string",
+      "description": "Stable id for this generated packet."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "question": {
+      "type": "string"
+    },
+    "template_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["answered", "partially_answered", "refused", "error"]
+    },
+    "location": {
+      "type": "object",
+      "required": ["input", "match_confidence", "method"],
+      "properties": {
+        "input": {"type": "string"},
+        "resolved_name": {"type": ["string", "null"]},
+        "geometry": {"type": ["object", "null"]},
+        "match_confidence": {
+          "type": "string",
+          "enum": ["manual_or_verified", "high", "medium", "low", "unresolved"]
+        },
+        "method": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "results": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_id", "source_name", "status"],
+        "properties": {
+          "source_id": {"type": "string"},
+          "source_name": {"type": "string"},
+          "status": {"type": "string"},
+          "version": {"type": ["string", "null"]},
+          "source_url": {"type": ["string", "null"]},
+          "local_path": {"type": ["string", "null"]},
+          "date_range": {"type": ["string", "null"]},
+          "downloaded_at": {"type": ["string", "null"]}
+        },
+        "additionalProperties": true
+      }
+    },
+    "methods": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "caveats": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["caveat_id", "text"],
+        "properties": {
+          "caveat_id": {"type": "string"},
+          "text": {"type": "string"}
+        }
+      }
+    },
+    "refusals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["refusal_id", "reason"],
+        "properties": {
+          "refusal_id": {"type": "string"},
+          "reason": {"type": "string"},
+          "allowed_alternative": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "query_metadata": {
+      "type": "object",
+      "properties": {
+        "sql_template": {"type": ["string", "null"]},
+        "runtime_ms": {"type": ["number", "null"]},
+        "data_manifest_version": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

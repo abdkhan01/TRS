@@ -1,0 +1,204 @@
+# Phase 1 source registry for Vision Zero Evidence Copilot.
+# Large datasets are registered here before ingest; local raw files remain outside normal git commits unless explicitly approved.
+
+sources:
+  - id: traffic_collisions
+    name: Traffic Collisions
+    status: available_local
+    source_url: https://data.urbandatacentre.ca/en/catalogue/city-toronto-police-annual-statistical-report-traffic-collisions
+    local_paths:
+      - datasets/traffic_collisions/4ad77de0-a9e0-4725-95d9-dbce6776d6cf.csv
+      - datasets/traffic_collisions/traffic-collisions-4326.geojson
+    formats: [csv, geojson]
+    grain: collision_event_candidate
+    geometry: point_wgs84
+    candidate_primary_keys: [_id]
+    date_fields: [OCC_DATE, OCC_YEAR, OCC_MONTH, OCC_DOW, OCC_HOUR]
+    required_for:
+      - intersection_safety_snapshot
+      - corridor_safety_snapshot
+      - collision_profile
+    caveat_ids:
+      - counting_rules_unapproved
+      - descriptive_not_causal
+      - location_match_uncertainty
+
+  - id: ksi_collisions
+    name: Motor Vehicle Collisions Involving Killed Or Seriously Injured Persons
+    status: available_local
+    source_url: https://data.urbandatacentre.ca/catalogue/city-toronto-motor-vehicle-collisions-involving-killed-or-seriously-injured-persons
+    local_paths:
+      - datasets/motor_vehicle_collisions_ksi/c9b88f1f-863e-42f1-ada0-2c09b1e2eaa4.csv
+      - datasets/motor_vehicle_collisions_ksi/motor-vehicle-collisions-with-ksi-data-4326.geojson
+    formats: [csv, geojson]
+    grain: involved_party_candidate
+    geometry: point_wgs84
+    candidate_primary_keys: [_id]
+    candidate_event_keys: [ACCNUM]
+    date_fields: [DATE, TIME]
+    required_for:
+      - ksi_trend
+      - vulnerable_road_user_profile
+      - intersection_safety_snapshot
+      - corridor_safety_snapshot
+    caveat_ids:
+      - ksi_party_grain
+      - counting_rules_unapproved
+      - descriptive_not_causal
+      - location_match_uncertainty
+
+  - id: traffic_volume
+    name: Traffic Volumes - Midblock Vehicle Speed, Volume and Classification Counts
+    status: available_local
+    source_url: https://open.toronto.ca/dataset/traffic-volumes-midblock-vehicle-speed-volume-and-classification-counts/
+    local_paths:
+      - datasets/traffic_volume/svc_most_recent_summary_data.csv
+      - datasets/traffic_volume/svc_raw_data_volume_2015_2019.csv
+      - datasets/traffic_volume/svc_raw_data_volume_2020_2024.csv
+      - datasets/traffic_volume/svc_data_dictionary.xlsx.xlsx
+    formats: [csv, xlsx]
+    grain: volume_or_speed_observation
+    geometry: point_wgs84
+    candidate_primary_keys: [_id, latest_count_id]
+    date_fields: [latest_count_date_start, latest_count_date_end]
+    required_for:
+      - speed_volume_context
+    caveat_ids:
+      - traffic_volume_coverage_uneven
+      - observed_speed_not_posted_limit
+      - descriptive_not_causal
+
+  - id: automated_speed_enforcement_locations
+    name: Automated Speed Enforcement Locations
+    status: available_local
+    source_url: https://data.urbandatacentre.ca/catalogue/city-toronto-automated-speed-enforcement-locations
+    local_paths:
+      - datasets/automated_speed_enforcement_cameras/e25e9460-a0e8-469c-b9fb-9a4837ac6c1c.csv
+      - datasets/automated_speed_enforcement_cameras/automated-speed-enforcement-locations-4326.geojson
+    formats: [csv, geojson]
+    grain: camera_location
+    geometry: point_wgs84
+    candidate_primary_keys: [_id, FID]
+    required_for:
+      - historical_ase_context
+    caveat_ids:
+      - ase_historical_context_only
+      - ase_locations_not_charges
+      - descriptive_not_causal
+
+  - id: toronto_centreline
+    name: Toronto Centreline TCL
+    status: registered_not_downloaded
+    source_url: https://open.toronto.ca/dataset/toronto-centreline-tcl/
+    ckan_url: https://ckan0.cf.opendata.inter.prod-toronto.ca/en/dataset/toronto-centreline-tcl
+    formats: [csv, geojson, gpkg, shp]
+    grain: road_or_linear_feature_segment
+    geometry: line
+    refresh_assumption: daily
+    required_for:
+      - location_resolution
+      - corridor_safety_snapshot
+      - road_classification_context
+    caveat_ids:
+      - location_match_uncertainty
+
+  - id: toronto_intersection_file
+    name: Intersection File - City of Toronto
+    status: registered_not_downloaded
+    source_url: https://data.urbandatacentre.ca/catalogue/city-toronto-intersection-file-city-of-toronto
+    formats: [unknown]
+    grain: intersection
+    geometry: point_or_node
+    required_for:
+      - intersection_location_resolution
+      - intersection_safety_snapshot
+    caveat_ids:
+      - location_match_uncertainty
+
+  - id: area_speed_limit_reductions
+    name: Area Speed Limit Reductions
+    status: registered_not_downloaded
+    source_url: https://open.toronto.ca/dataset/area-speed-limit-reductions/
+    formats: [unknown]
+    grain: ward_or_area_program_status
+    required_for:
+      - speed_limit_reduction_context
+    limitations:
+      - Not yet verified as a complete current posted-speed-limit source.
+    caveat_ids:
+      - speed_limit_source_incomplete
+
+  - id: school_locations_all_types
+    name: School Locations - All Types
+    status: registered_not_downloaded
+    source_url: https://open.toronto.ca/dataset/school-locations-all-types/
+    formats: [unknown]
+    grain: school_location
+    required_for:
+      - school_zone_context
+      - csz_context_candidate
+    limitations:
+      - School proximity does not establish legal CSZ status by itself.
+
+  - id: community_safety_zones_reference
+    name: Community Safety Zones - Vision Zero Reference Page
+    status: reference_only
+    source_url: https://www.toronto.ca/services-payments/streets-parking-transportation/road-safety/vision-zero/vision-zero-dashboard/community-safety-zones-vision-zero/
+    formats: [html]
+    grain: policy_reference
+    required_for:
+      - csz_refusal_context
+      - csz_policy_context
+    limitations:
+      - Not a structured boundary or segment dataset.
+
+  - id: road_classification_reference
+    name: Road Classification System
+    status: reference_only
+    source_url: https://www.toronto.ca/services-payments/streets-parking-transportation/traffic-management/road-classification-system/
+    formats: [html, pdf]
+    grain: policy_reference
+    required_for:
+      - road_classification_context
+
+  - id: municipal_code
+    name: Toronto Municipal Code
+    status: deferred
+    source_url: https://www.toronto.ca/legdocs/bylaws/lawmcode.htm
+    formats: [html, pdf]
+    grain: bylaw_reference
+    required_for:
+      - bylaw_authority
+      - legal_restriction_context
+    refusal_id: bylaw_source_missing
+
+  - id: council_staff_reports
+    name: Toronto Council And Staff Reports
+    status: deferred
+    source_url: https://www.toronto.ca/city-government/council/
+    formats: [html, pdf]
+    grain: policy_document
+    required_for:
+      - implementation_history
+      - policy_rationale
+    refusal_id: policy_history_source_missing
+
+  - id: ase_charges
+    name: Automated Speed Enforcement Charges Or Violations
+    status: missing
+    source_url: null
+    grain: enforcement_record
+    required_for:
+      - ase_ticket_volume
+      - enforcement_compliance_claims
+    refusal_id: ase_charges_source_missing
+
+  - id: no_right_turn_on_red_restrictions
+    name: No Right Turn On Red Restriction Inventory
+    status: missing
+    source_url: null
+    grain: traffic_restriction
+    required_for:
+      - turn_restriction_status
+      - turn_restriction_history
+    refusal_id: turn_restriction_source_missing
