@@ -34,3 +34,15 @@ caveats:
   speed_limit_source_incomplete:
     text: The registered speed-limit reduction source has not been verified as a complete current posted-speed-limit authority.
     applies_to: [speed_limit_context]
+
+  csz_school_context_not_proof:
+    text: School proximity or school-frontage context does not prove legal Community Safety Zone status.
+    applies_to: [csz_context]
+
+  bylaw_schedule_unapproved:
+    text: Traffic and parking by-law schedules are candidate authority sources only until profiled, mapped, and approved for the specific factual use.
+    applies_to: [speed_limit_context, csz_context, turn_restriction_context]
+
+  source_profile_unapproved:
+    text: Source profile metadata exists, but analyst approval is still pending. Treat derived evidence as draft.
+    applies_to: [all_outputs]

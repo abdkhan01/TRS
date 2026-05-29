@@ -1,0 +1,88 @@
+{
+  "profile_version": 1,
+  "dataset_id": "traffic_volume",
+  "dataset_name": "Traffic Volumes - Midblock Vehicle Speed, Volume and Classification Counts",
+  "status": "available_local",
+  "source_url": "https://open.toronto.ca/dataset/traffic-volumes-midblock-vehicle-speed-volume-and-classification-counts/",
+  "profiled_at": "2026-05-18",
+  "profiled_by": "Codex local CSV profile",
+  "analyst_approval_status": "needs_review",
+  "canonical_grain": "volume_or_speed_observation",
+  "approved_counting_method": "draft: count summary rows by latest_count_id; aggregate raw observations only within documented count windows",
+  "geometry": {
+    "type": "Point",
+    "crs": "EPSG:4326",
+    "longitude_field": "longitude",
+    "latitude_field": "latitude"
+  },
+  "candidate_primary_keys": ["_id", "latest_count_id"],
+  "date_fields": ["latest_count_date_start", "latest_count_date_end"],
+  "caveat_ids": [
+    "traffic_volume_coverage_uneven",
+    "observed_speed_not_posted_limit",
+    "descriptive_not_causal"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/traffic_volume/svc_most_recent_summary_data.csv",
+      "format": "csv",
+      "file_size_bytes": 2674349,
+      "row_count": 14223,
+      "column_count": 21,
+      "key_checks": {
+        "_id": {
+          "missing": 0,
+          "distinct": 14223,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        },
+        "latest_count_id": {
+          "missing": 0,
+          "distinct": 14223,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        }
+      },
+      "date_checks": {
+        "latest_count_date_start": {
+          "missing_or_unparsed": 0,
+          "min": "1993-01-06",
+          "max": "2025-12-16"
+        },
+        "latest_count_date_end": {
+          "missing_or_unparsed": 0,
+          "min": "1993-01-06",
+          "max": "2025-12-18"
+        }
+      }
+    },
+    {
+      "path": "datasets/traffic_volume/svc_raw_data_volume_2015_2019.csv",
+      "format": "csv",
+      "file_size_bytes": 82329918,
+      "notes": [
+        "Registered but not fully profiled in this pass."
+      ]
+    },
+    {
+      "path": "datasets/traffic_volume/svc_raw_data_volume_2020_2024.csv",
+      "format": "csv",
+      "file_size_bytes": 2491265,
+      "notes": [
+        "Registered but not fully profiled in this pass."
+      ]
+    },
+    {
+      "path": "datasets/traffic_volume/svc_data_dictionary.xlsx.xlsx",
+      "format": "xlsx",
+      "file_size_bytes": 56660,
+      "notes": [
+        "Data dictionary retained as local supporting material."
+      ]
+    }
+  ],
+  "open_questions": [
+    "Why do local summary count dates include future dates relative to 2026-05-18?",
+    "Which raw fields define count interval grain and vehicle classification rollups?"
+  ]
+}

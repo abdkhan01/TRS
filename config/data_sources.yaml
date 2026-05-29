@@ -1,6 +1,9 @@
 # Phase 1 source registry for Vision Zero Evidence Copilot.
 # Large datasets are registered here before ingest; local raw files remain outside normal git commits unless explicitly approved.
 
+manifest_version: 1
+last_updated: 2026-05-18
+
 sources:
   - id: traffic_collisions
     name: Traffic Collisions
@@ -10,6 +13,8 @@ sources:
       - datasets/traffic_collisions/4ad77de0-a9e0-4725-95d9-dbce6776d6cf.csv
       - datasets/traffic_collisions/traffic-collisions-4326.geojson
     formats: [csv, geojson]
+    profile_path: data_profiles/traffic_collisions.json
+    analyst_approval_status: needs_review
     grain: collision_event_candidate
     geometry: point_wgs84
     candidate_primary_keys: [_id]
@@ -31,6 +36,8 @@ sources:
       - datasets/motor_vehicle_collisions_ksi/c9b88f1f-863e-42f1-ada0-2c09b1e2eaa4.csv
       - datasets/motor_vehicle_collisions_ksi/motor-vehicle-collisions-with-ksi-data-4326.geojson
     formats: [csv, geojson]
+    profile_path: data_profiles/ksi_collisions.json
+    analyst_approval_status: needs_review
     grain: involved_party_candidate
     geometry: point_wgs84
     candidate_primary_keys: [_id]
@@ -57,6 +64,8 @@ sources:
       - datasets/traffic_volume/svc_raw_data_volume_2020_2024.csv
       - datasets/traffic_volume/svc_data_dictionary.xlsx.xlsx
     formats: [csv, xlsx]
+    profile_path: data_profiles/traffic_volume.json
+    analyst_approval_status: needs_review
     grain: volume_or_speed_observation
     geometry: point_wgs84
     candidate_primary_keys: [_id, latest_count_id]
@@ -76,6 +85,8 @@ sources:
       - datasets/automated_speed_enforcement_cameras/e25e9460-a0e8-469c-b9fb-9a4837ac6c1c.csv
       - datasets/automated_speed_enforcement_cameras/automated-speed-enforcement-locations-4326.geojson
     formats: [csv, geojson]
+    profile_path: data_profiles/automated_speed_enforcement_locations.json
+    analyst_approval_status: needs_review
     grain: camera_location
     geometry: point_wgs84
     candidate_primary_keys: [_id, FID]
@@ -88,57 +99,138 @@ sources:
 
   - id: toronto_centreline
     name: Toronto Centreline TCL
-    status: registered_not_downloaded
+    status: available_local
     source_url: https://open.toronto.ca/dataset/toronto-centreline-tcl/
     ckan_url: https://ckan0.cf.opendata.inter.prod-toronto.ca/en/dataset/toronto-centreline-tcl
+    local_paths:
+      - datasets/toronto_centreline/centreline-version-2-4326.csv
+      - datasets/toronto_centreline/centreline-version-2-4326.gpkg
+    package_metadata_path: datasets/toronto_centreline/package_show.json
     formats: [csv, geojson, gpkg, shp]
+    profile_path: data_profiles/toronto_centreline.json
+    analyst_approval_status: needs_review
     grain: road_or_linear_feature_segment
-    geometry: line
+    geometry: line_wgs84
     refresh_assumption: daily
+    source_last_refreshed: "2026-05-18 18:13:13.07293"
+    row_count: 64408
+    candidate_primary_keys: [_id, CENTRELINE_ID]
     required_for:
       - location_resolution
       - corridor_safety_snapshot
       - road_classification_context
     caveat_ids:
       - location_match_uncertainty
+    next_actions:
+      - Download into ignored local storage.
+      - Create tracked data profile before using for factual answers.
+      - Validate CRS and segment geometry handling.
 
   - id: toronto_intersection_file
     name: Intersection File - City of Toronto
-    status: registered_not_downloaded
-    source_url: https://data.urbandatacentre.ca/catalogue/city-toronto-intersection-file-city-of-toronto
-    formats: [unknown]
+    status: available_local
+    source_url: https://open.toronto.ca/dataset/intersection-file-city-of-toronto/
+    secondary_catalogue_url: https://data.urbandatacentre.ca/catalogue/city-toronto-intersection-file-city-of-toronto
+    local_paths:
+      - datasets/toronto_intersection_file/centreline-intersection-4326.csv
+      - datasets/toronto_intersection_file/centreline-intersection-4326.gpkg
+    package_metadata_path: datasets/toronto_intersection_file/package_show.json
+    formats: [csv, geojson, gpkg, shp]
+    profile_path: data_profiles/toronto_intersection_file.json
+    analyst_approval_status: needs_review
     grain: intersection
-    geometry: point_or_node
+    geometry: point_wgs84
+    refresh_assumption: daily
+    source_last_refreshed: "2026-05-18 09:06:44.734665"
+    row_count: 46377
+    candidate_primary_keys: [_id, INTERSECTION_ID]
     required_for:
       - intersection_location_resolution
       - intersection_safety_snapshot
     caveat_ids:
       - location_match_uncertainty
+    next_actions:
+      - Download into ignored local storage.
+      - Create tracked data profile before using for factual answers.
+      - Validate normalized street-name pair lookup.
 
   - id: area_speed_limit_reductions
     name: Area Speed Limit Reductions
-    status: registered_not_downloaded
+    status: available_local
     source_url: https://open.toronto.ca/dataset/area-speed-limit-reductions/
-    formats: [unknown]
+    local_paths:
+      - datasets/area_speed_limit_reductions/traffic-calming-database-4326.csv
+      - datasets/area_speed_limit_reductions/traffic-calming-database-4326.gpkg
+    package_metadata_path: datasets/area_speed_limit_reductions/package_show.json
+    formats: [csv, geojson, gpkg, shp]
+    profile_path: data_profiles/area_speed_limit_reductions.json
+    analyst_approval_status: needs_review
     grain: ward_or_area_program_status
+    geometry: polygon_wgs84
+    source_last_refreshed: "2026-02-24 20:51:54.17522"
+    row_count: 25
+    candidate_primary_keys: [_id, WARD_NUMBER]
     required_for:
       - speed_limit_reduction_context
     limitations:
       - Not yet verified as a complete current posted-speed-limit source.
     caveat_ids:
       - speed_limit_source_incomplete
+    refusal_id: posted_speed_limit_source_missing
 
   - id: school_locations_all_types
     name: School Locations - All Types
-    status: registered_not_downloaded
+    status: available_local
     source_url: https://open.toronto.ca/dataset/school-locations-all-types/
-    formats: [unknown]
+    local_paths:
+      - datasets/school_locations_all_types/school-locations-all-types-data-4326.csv
+      - datasets/school_locations_all_types/school-locations-all-types-data-4326.gpkg
+    package_metadata_path: datasets/school_locations_all_types/package_show.json
+    formats: [csv, geojson, gpkg, shp]
+    profile_path: data_profiles/school_locations_all_types.json
+    analyst_approval_status: needs_review
     grain: school_location
+    geometry: point_wgs84
+    source_last_refreshed: "2026-02-20 17:59:51.264671"
+    row_count: 1171
+    candidate_primary_keys: [_id, GEO_ID, ADDRESS_POINT_ID]
     required_for:
       - school_zone_context
       - csz_context_candidate
     limitations:
       - School proximity does not establish legal CSZ status by itself.
+    caveat_ids:
+      - csz_school_context_not_proof
+    refusal_id: csz_structured_source_missing
+
+  - id: school_safety_zone_watch_your_speed_locations
+    name: School Safety Zone Watch Your Speed Program - Locations
+    status: available_local
+    source_url: https://open.toronto.ca/dataset/school-safety-zone-watch-your-speed-program-locations/
+    local_paths:
+      - datasets/school_safety_zone_watch_your_speed_locations/stationary-sign-locations-4326.csv
+      - datasets/school_safety_zone_watch_your_speed_locations/stationary-sign-locations-4326.gpkg
+    package_metadata_path: datasets/school_safety_zone_watch_your_speed_locations/package_show.json
+    formats: [csv, geojson, gpkg, shp]
+    profile_path: data_profiles/school_safety_zone_watch_your_speed_locations.json
+    analyst_approval_status: needs_review
+    grain: watch_your_speed_sign_location
+    geometry: point_wgs84
+    refresh_assumption: monthly
+    source_last_refreshed: "2026-05-05 12:00:29.631934"
+    row_count: 1212
+    candidate_primary_keys: [_id, sign_id]
+    date_fields: [start_date, end_date]
+    required_for:
+      - school_zone_context
+      - csz_context_candidate
+    limitations:
+      - Watch Your Speed sign locations are partial public coverage and not a complete authoritative School Safety Zone boundary inventory.
+      - Source speed-limit values are operating parameters and should not be used as current posted speed-limit authority.
+    caveat_ids:
+      - csz_school_context_not_proof
+      - speed_limit_source_incomplete
+    refusal_id: csz_structured_source_missing
 
   - id: community_safety_zones_reference
     name: Community Safety Zones - Vision Zero Reference Page
@@ -151,6 +243,33 @@ sources:
       - csz_policy_context
     limitations:
       - Not a structured boundary or segment dataset.
+    refusal_id: csz_structured_source_missing
+
+  - id: traffic_and_parking_bylaw_schedules
+    name: Traffic And Parking By-Law Schedules
+    status: available_local
+    source_url: https://open.toronto.ca/dataset/traffic-and-parking-by-law-schedules/
+    ckan_url: https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/traffic-and-parking-by-law-schedules
+    local_paths:
+      - datasets/traffic_and_parking_bylaw_schedules/traffic-and-parking-by-law-schedules-data.csv
+    package_metadata_path: datasets/traffic_and_parking_bylaw_schedules/package_show.json
+    formats: [csv, json, xml]
+    profile_path: data_profiles/traffic_and_parking_bylaw_schedules.json
+    analyst_approval_status: needs_review
+    grain: bylaw_schedule_record_candidate
+    source_last_refreshed: "2026-05-18 02:27:49.089099"
+    row_count: 76849
+    candidate_primary_keys: [_id]
+    required_for:
+      - posted_speed_limit_authority_candidate
+      - turn_restriction_status_candidate
+      - csz_status_candidate
+    limitations:
+      - Candidate authority source only; not profiled, spatially matched, or approved for factual answers.
+      - Schedule records may require legal/policy interpretation before public-sector use.
+    caveat_ids:
+      - bylaw_schedule_unapproved
+    refusal_id: bylaw_schedule_unapproved
 
   - id: road_classification_reference
     name: Road Classification System
@@ -185,20 +304,65 @@ sources:
 
   - id: ase_charges
     name: Automated Speed Enforcement Charges Or Violations
-    status: missing
-    source_url: null
-    grain: enforcement_record
+    status: available_local
+    source_url: https://open.toronto.ca/dataset/automated-speed-enforcement-ase-charges/
+    secondary_catalogue_url: https://data.urbandatacentre.ca/catalogue/city-toronto-automated-speed-enforcement-ase-charges
+    local_paths:
+      - datasets/automated_speed_enforcement_charges/automated-speed-enforcement.xlsx
+    package_metadata_path: datasets/automated_speed_enforcement_charges/package_show.json
+    formats: [xlsx]
+    profile_path: data_profiles/automated_speed_enforcement_charges.json
+    analyst_approval_status: needs_review
+    grain: monthly_ase_charges_by_site_candidate
+    refresh_assumption: monthly
+    source_last_refreshed: "2026-03-10 16:13:24"
     required_for:
       - ase_ticket_volume
       - enforcement_compliance_claims
+    limitations:
+      - Monthly aggregated charges only, not individual violations.
+      - Not sufficient for enforcement-effect or causal claims without approved evaluation design.
+    caveat_ids:
+      - descriptive_not_causal
     refusal_id: ase_charges_source_missing
+
+  - id: road_classification_arcgis_layers
+    name: Road Classification Structured ArcGIS Layers
+    status: candidate_api_not_downloaded
+    source_url: https://gis.toronto.ca/arcgis/rest/services/cot_geospatial/FeatureServer
+    formats: [arcgis_rest, geojson_candidate]
+    grain: road_segment_candidate
+    required_for:
+      - road_classification_context
+      - corridor_safety_snapshot
+    limitations:
+      - Public REST service reuse terms need verification before redistribution.
+      - Layer ids and schemas must be profiled before using for factual answers.
+
+  - id: vision_zero_engineering_improvements
+    name: Vision Zero Engineering Improvement Layers
+    status: candidate_api_not_downloaded
+    source_url: https://gis.toronto.ca/arcgis/rest/services/cot_geospatial2/FeatureServer
+    candidate_layers:
+      - https://gis.toronto.ca/arcgis/rest/services/cot_geospatial2/FeatureServer/69
+      - https://gis.toronto.ca/arcgis/rest/services/cot_geospatial2/FeatureServer/70
+    formats: [arcgis_rest, geojson_candidate]
+    grain: safety_measure_candidate
+    required_for:
+      - intervention_history
+      - safety_measure_context
+    limitations:
+      - Public layer descriptions are sparse and may not cover all intervention types.
+      - Before/after and effect claims remain unsupported until evaluation design is approved.
 
   - id: no_right_turn_on_red_restrictions
     name: No Right Turn On Red Restriction Inventory
-    status: missing
-    source_url: null
+    status: candidate_in_bylaw_schedules
+    source_url: https://open.toronto.ca/dataset/traffic-and-parking-by-law-schedules/
     grain: traffic_restriction
     required_for:
       - turn_restriction_status
       - turn_restriction_history
+    limitations:
+      - Candidate records appear in Traffic and Parking By-Law Schedules, but no-right-turn-on-red filtering and interpretation have not been implemented or approved.
     refusal_id: turn_restriction_source_missing
