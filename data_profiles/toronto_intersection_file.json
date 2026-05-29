@@ -1,0 +1,58 @@
+{
+  "profile_version": 1,
+  "dataset_id": "toronto_intersection_file",
+  "dataset_name": "Intersection File - City of Toronto",
+  "status": "available_local",
+  "source_url": "https://open.toronto.ca/dataset/intersection-file-city-of-toronto/",
+  "profiled_at": "2026-05-18",
+  "profiled_by": "Codex local CSV profile",
+  "source_last_refreshed": "2026-05-18 09:06:44.734665",
+  "license": "License not specified",
+  "analyst_approval_status": "needs_review",
+  "canonical_grain": "intersection",
+  "geometry": {
+    "type": "Point",
+    "crs": "EPSG:4326",
+    "field": "geometry"
+  },
+  "candidate_primary_keys": ["_id", "INTERSECTION_ID"],
+  "caveat_ids": [
+    "location_match_uncertainty"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/toronto_intersection_file/centreline-intersection-4326.csv",
+      "format": "csv",
+      "file_size_bytes": 11742932,
+      "row_count": 46377,
+      "column_count": 21,
+      "key_checks": {
+        "_id": {
+          "missing": 0,
+          "distinct": 46377,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        },
+        "INTERSECTION_ID": {
+          "missing": 0,
+          "distinct": 44237,
+          "duplicate_values": 2136,
+          "duplicate_rows": 2140
+        }
+      }
+    },
+    {
+      "path": "datasets/toronto_intersection_file/centreline-intersection-4326.gpkg",
+      "format": "gpkg",
+      "file_size_bytes": 13561856,
+      "notes": [
+        "Downloaded for spatial work; CSV profile is the reproducible dependency-free validation target."
+      ]
+    }
+  ],
+  "open_questions": [
+    "Determine whether duplicated INTERSECTION_ID values represent elevation/state variants or another business grain.",
+    "Confirm how DATE_EFFECTIVE and DATE_EXPIRY should be used for active intersection lookups.",
+    "Approve normalized street-name pair lookup and confidence scoring."
+  ]
+}

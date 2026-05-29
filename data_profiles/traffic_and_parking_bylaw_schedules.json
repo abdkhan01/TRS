@@ -1,0 +1,42 @@
+{
+  "profile_version": 1,
+  "dataset_id": "traffic_and_parking_bylaw_schedules",
+  "dataset_name": "Traffic And Parking By-Law Schedules",
+  "status": "available_local",
+  "source_url": "https://open.toronto.ca/dataset/traffic-and-parking-by-law-schedules/",
+  "profiled_at": "2026-05-18",
+  "profiled_by": "Codex local CSV profile",
+  "source_last_refreshed": "2026-05-18 02:27:49.089099",
+  "license": "License not specified",
+  "analyst_approval_status": "needs_review",
+  "canonical_grain": "bylaw_schedule_record_candidate",
+  "candidate_primary_keys": ["_id"],
+  "caveat_ids": [
+    "bylaw_schedule_unapproved"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/traffic_and_parking_bylaw_schedules/traffic-and-parking-by-law-schedules-data.csv",
+      "format": "csv",
+      "file_size_bytes": 486996702,
+      "row_count": 76849,
+      "column_count": 11,
+      "key_checks": {
+        "_id": {
+          "missing": 0,
+          "distinct": 76849,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Candidate authority source only; not interpreted, spatially matched, or approved for factual answers.",
+    "Schedule records may require legal or policy review before public-sector use."
+  ],
+  "open_questions": [
+    "Identify which ByLaw_Table or schedule values encode speed limits, Community Safety Zones, and no-right-turn-on-red restrictions.",
+    "Decide whether Chapter 950 schedule data can be treated as authoritative after legal/policy review."
+  ]
+}

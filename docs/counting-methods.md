@@ -23,11 +23,21 @@ The Evidence Copilot must avoid counting rows when the analytical question requi
 
 | Dataset | Current row grain assumption | MVP counting rule | Approval status |
 |---|---|---|---|
-| Traffic collisions | Collision occurrence row. | Count rows by `_id` only after verifying `_id` is unique and one row equals one collision occurrence. | Needs validation |
-| Motor vehicle collisions involving KSI | Involved-party row. | Count unique `ACCNUM` for event-level KSI collisions; count rows only for involved-party breakdowns. | Needs analyst approval |
+| Traffic collisions | Collision occurrence row candidate. Local profile found 772,516 rows and 772,516 distinct `_id` values. | Count unique `_id` only after verifying one row equals one collision occurrence. | Key uniqueness validated locally; business grain needs analyst approval |
+| Motor vehicle collisions involving KSI | Involved-party row candidate. Local profile found 18,957 rows and 4,956 distinct `ACCNUM` values. | Count unique `ACCNUM` for event-level KSI collisions; count rows only for involved-party breakdowns. | Local evidence supports involved-party grain; `ACCNUM` needs analyst approval |
 | Traffic volume summary | Latest count summary per location/count id. | Count observations by `latest_count_id`; do not infer continuous coverage. | Needs validation |
 | Traffic volume raw files | Observation rows by count/time/bin. | Aggregate only within known count windows and method-specific fields. | Needs validation |
-| ASE camera locations | Camera location row. | Count camera-location records only; never infer ticket volume or compliance. | Needs validation |
+| ASE camera locations | Camera location row. Local profile found 198 rows and 198 distinct `_id`/`FID` values. | Count camera-location records only; never infer ticket volume or compliance. | Key uniqueness validated locally; current vs historical meaning needs approval |
+
+## Local Validation Command
+
+Run this command after local datasets are refreshed:
+
+```bash
+python3 scripts/validate_data_profiles.py
+```
+
+The command compares ignored local CSV files with tracked `data_profiles/*.json` metadata for row counts, file sizes, key uniqueness, and date ranges. A failing validation should block evidence-packet generation from that source until the profile is updated and reviewed.
 
 ## Default Snapshot Rules
 

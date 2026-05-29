@@ -1,0 +1,65 @@
+{
+  "profile_version": 1,
+  "dataset_id": "traffic_collisions",
+  "dataset_name": "Traffic Collisions",
+  "status": "available_local",
+  "source_url": "https://data.urbandatacentre.ca/en/catalogue/city-toronto-police-annual-statistical-report-traffic-collisions",
+  "profiled_at": "2026-05-18",
+  "profiled_by": "Codex local CSV profile",
+  "analyst_approval_status": "needs_review",
+  "canonical_grain": "collision_event_candidate",
+  "approved_counting_method": "draft: count unique _id only after analyst confirms one row equals one collision occurrence",
+  "geometry": {
+    "type": "Point",
+    "crs": "EPSG:4326",
+    "source_field": "geometry"
+  },
+  "candidate_primary_keys": ["_id"],
+  "candidate_event_keys": ["_id"],
+  "date_fields": ["OCC_DATE", "OCC_YEAR"],
+  "caveat_ids": [
+    "counting_rules_unapproved",
+    "descriptive_not_causal",
+    "location_match_uncertainty"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/traffic_collisions/4ad77de0-a9e0-4725-95d9-dbce6776d6cf.csv",
+      "format": "csv",
+      "file_size_bytes": 160627144,
+      "row_count": 772516,
+      "column_count": 21,
+      "key_checks": {
+        "_id": {
+          "missing": 0,
+          "distinct": 772516,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        }
+      },
+      "date_checks": {
+        "OCC_YEAR": {
+          "missing_or_unparsed": 0,
+          "min": "2014-01-01",
+          "max": "2025-01-01"
+        }
+      },
+      "notes": [
+        "OCC_DATE is stored as epoch milliseconds in the profiled CSV.",
+        "The local CSV has a GeoJSON geometry field rather than separate longitude/latitude columns."
+      ]
+    },
+    {
+      "path": "datasets/traffic_collisions/traffic-collisions-4326.geojson",
+      "format": "geojson",
+      "file_size_bytes": 461235259,
+      "notes": [
+        "GeoJSON not fully scanned by the lightweight CSV validator."
+      ]
+    }
+  ],
+  "open_questions": [
+    "Does one CSV row always represent exactly one collision occurrence?",
+    "Which fields should be used for official severity and road-user summaries?"
+  ]
+}

@@ -34,6 +34,11 @@ refusals:
     reason: No-right-turn-on-red restriction status or implementation history cannot be determined because no approved restriction inventory or bylaw schedule source is registered.
     allowed_alternative: Provide collision profile evidence for the location without confirming the restriction.
 
+  bylaw_schedule_unapproved:
+    status: refused
+    reason: Traffic and parking by-law schedule records are only candidate sources until their schema, legal authority, and spatial matching method are approved.
+    allowed_alternative: State that by-law-backed facts are outside the approved Phase 1 source set.
+
   causal_claim_not_supported:
     status: refused
     reason: Causal safety-impact claims are outside the MVP and require an approved evaluation design.
