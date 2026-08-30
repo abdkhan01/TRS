@@ -6,9 +6,9 @@
   "source_url": "https://data.urbandatacentre.ca/en/catalogue/city-toronto-police-annual-statistical-report-traffic-collisions",
   "profiled_at": "2026-05-18",
   "profiled_by": "Codex local CSV profile",
-  "analyst_approval_status": "needs_review",
-  "canonical_grain": "collision_event_candidate",
-  "approved_counting_method": "draft: count unique _id only after analyst confirms one row equals one collision occurrence",
+  "analyst_approval_status": "approved_for_mvp",
+  "canonical_grain": "collision_event",
+  "approved_counting_method": "approved for Phase 1: count unique _id; each CSV row represents one unique traffic collision occurrence",
   "geometry": {
     "type": "Point",
     "crs": "EPSG:4326",
@@ -18,7 +18,6 @@
   "candidate_event_keys": ["_id"],
   "date_fields": ["OCC_DATE", "OCC_YEAR"],
   "caveat_ids": [
-    "counting_rules_unapproved",
     "descriptive_not_causal",
     "location_match_uncertainty"
   ],

@@ -4,13 +4,14 @@
   "dataset_name": "Traffic And Parking By-Law Schedules",
   "status": "available_local",
   "source_url": "https://open.toronto.ca/dataset/traffic-and-parking-by-law-schedules/",
-  "profiled_at": "2026-05-18",
+  "profiled_at": "2026-08-22",
   "profiled_by": "Codex local CSV profile",
-  "source_last_refreshed": "2026-05-18 02:27:49.089099",
+  "source_last_refreshed": "2026-08-22 13:15:39",
   "license": "License not specified",
-  "analyst_approval_status": "needs_review",
+  "analyst_approval_status": "refusal_only",
   "canonical_grain": "bylaw_schedule_record_candidate",
   "candidate_primary_keys": ["_id"],
+  "date_fields": ["Latest_Action_Date"],
   "caveat_ids": [
     "bylaw_schedule_unapproved"
   ],
@@ -18,25 +19,75 @@
     {
       "path": "datasets/traffic_and_parking_bylaw_schedules/traffic-and-parking-by-law-schedules-data.csv",
       "format": "csv",
-      "file_size_bytes": 486996702,
-      "row_count": 76849,
+      "file_size_bytes": 178313283,
+      "row_count": 27592,
       "column_count": 11,
+      "required_columns": [
+        "_id",
+        "Bylaw_Description",
+        "Shedule_Name",
+        "Latest_Action",
+        "Latest_Action_Date",
+        "ByLaw_Actions_Summary",
+        "ByLaw_Table"
+      ],
       "key_checks": {
         "_id": {
           "missing": 0,
-          "distinct": 76849,
+          "distinct": 27592,
           "duplicate_values": 0,
           "duplicate_rows": 0
         }
+      },
+      "date_checks": {
+        "Latest_Action_Date": {
+          "missing_or_unparsed": 15637,
+          "min": "2002-02-05",
+          "max": "2025-12-17"
+        }
+      },
+      "observed_summary": {
+        "latest_action_counts": {
+          "None": 15637,
+          "Repealed": 6370,
+          "Added": 5585
+        },
+        "candidate_schedule_counts": {
+          "Schedule 35: Speed Limits on Public Highways": 7,
+          "Schedule 33: Community Safety Zones": 1,
+          "Schedule 23: Prohibited Turns": 3,
+          "Schedule 11: Safety Zones": 49
+        },
+        "candidate_schedule_fields": {
+          "Schedule 35: Speed Limits on Public Highways": ["Highway", "Between", "Speed Limit (km/h)"],
+          "Schedule 33: Community Safety Zones": [
+            "Highway",
+            "Side",
+            "Location",
+            "Prohibited Hours and/or Days",
+            "Prohibited Months"
+          ],
+          "Schedule 23: Prohibited Turns": [
+            "Intersection or Portion of Highway",
+            "Direction",
+            "Turns Prohibited",
+            "Times and/or Days"
+          ],
+          "Schedule 11: Safety Zones": ["Highway", "Location"]
+        },
+        "bylaw_table_parse_failures": 504
       }
     }
   ],
   "limitations": [
-    "Candidate authority source only; not interpreted, spatially matched, or approved for factual answers.",
+    "Candidate authority source only; not spatially matched or approved for factual answers.",
+    "The refreshed public CSV contains small candidate subsets for speed-limit, Community Safety Zone, and prohibited-turn schedules; coverage must be reviewed before any factual lookup.",
+    "ByLaw_Table values are stringified semi-structured records; 504 rows did not parse with a conservative literal parser during profiling.",
     "Schedule records may require legal or policy review before public-sector use."
   ],
   "open_questions": [
-    "Identify which ByLaw_Table or schedule values encode speed limits, Community Safety Zones, and no-right-turn-on-red restrictions.",
+    "Can Schedule 35, Schedule 33, Schedule 23, and Schedule 11 records be treated as complete enough for any Phase 1 factual lookup?",
+    "Should current lookups exclude records with Latest_Action Repealed or include them for historical by-law context only?",
     "Decide whether Chapter 950 schedule data can be treated as authoritative after legal/policy review."
   ]
 }

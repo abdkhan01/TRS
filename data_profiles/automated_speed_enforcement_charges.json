@@ -1,6 +1,6 @@
 {
   "profile_version": 1,
-  "dataset_id": "automated_speed_enforcement_charges",
+  "dataset_id": "ase_charges",
   "dataset_name": "Automated Speed Enforcement (ASE) Charges",
   "status": "available_local",
   "source_url": "https://open.toronto.ca/dataset/automated-speed-enforcement-ase-charges/",
@@ -8,10 +8,9 @@
   "profiled_by": "Codex local XLSX package profile",
   "source_last_refreshed": "2026-03-10 16:13:24",
   "license": "License not specified",
-  "analyst_approval_status": "needs_review",
+  "analyst_approval_status": "deferred_phase_2",
   "canonical_grain": "monthly_ase_charges_by_site_candidate",
   "caveat_ids": [
-    "ase_locations_not_charges",
     "descriptive_not_causal"
   ],
   "local_files": [

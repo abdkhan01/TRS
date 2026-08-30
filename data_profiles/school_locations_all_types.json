@@ -8,7 +8,7 @@
   "profiled_by": "Codex local CSV profile",
   "source_last_refreshed": "2026-02-20 17:59:51.264671",
   "license": "License not specified",
-  "analyst_approval_status": "needs_review",
+  "analyst_approval_status": "approved_context_only",
   "canonical_grain": "school_location",
   "geometry": {
     "type": "Point",

@@ -8,7 +8,7 @@
   "profiled_by": "Codex local CSV profile",
   "source_last_refreshed": "2026-05-05 12:00:29.631934",
   "license": "open-government-licence-toronto",
-  "analyst_approval_status": "needs_review",
+  "analyst_approval_status": "approved_context_only",
   "canonical_grain": "watch_your_speed_sign_location",
   "geometry": {
     "type": "Point",

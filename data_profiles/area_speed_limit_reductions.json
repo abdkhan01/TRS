@@ -8,7 +8,7 @@
   "profiled_by": "Codex local CSV profile",
   "source_last_refreshed": "2026-02-24 20:51:54.17522",
   "license": "License not specified",
-  "analyst_approval_status": "needs_review",
+  "analyst_approval_status": "approved_context_only",
   "canonical_grain": "ward_or_area_program_status",
   "geometry": {
     "type": "Polygon",
