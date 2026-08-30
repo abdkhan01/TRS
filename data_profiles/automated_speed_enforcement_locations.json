@@ -6,9 +6,9 @@
   "source_url": "https://data.urbandatacentre.ca/catalogue/city-toronto-automated-speed-enforcement-locations",
   "profiled_at": "2026-05-18",
   "profiled_by": "Codex local CSV profile",
-  "analyst_approval_status": "needs_review",
+  "analyst_approval_status": "approved_context_only",
   "canonical_grain": "camera_location",
-  "approved_counting_method": "draft: count camera-location records only; never infer ticket volume or compliance",
+  "approved_counting_method": "approved for Phase 1: count camera-location records only; never infer ticket volume or compliance",
   "geometry": {
     "type": "Point",
     "crs": "EPSG:4326",

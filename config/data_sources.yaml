@@ -2,7 +2,7 @@
 # Large datasets are registered here before ingest; local raw files remain outside normal git commits unless explicitly approved.
 
 manifest_version: 1
-last_updated: 2026-05-18
+last_updated: 2026-08-22
 
 sources:
   - id: traffic_collisions
@@ -14,8 +14,8 @@ sources:
       - datasets/traffic_collisions/traffic-collisions-4326.geojson
     formats: [csv, geojson]
     profile_path: data_profiles/traffic_collisions.json
-    analyst_approval_status: needs_review
-    grain: collision_event_candidate
+    analyst_approval_status: approved_for_mvp
+    grain: collision_event
     geometry: point_wgs84
     candidate_primary_keys: [_id]
     date_fields: [OCC_DATE, OCC_YEAR, OCC_MONTH, OCC_DOW, OCC_HOUR]
@@ -24,7 +24,6 @@ sources:
       - corridor_safety_snapshot
       - collision_profile
     caveat_ids:
-      - counting_rules_unapproved
       - descriptive_not_causal
       - location_match_uncertainty
 
@@ -37,7 +36,7 @@ sources:
       - datasets/motor_vehicle_collisions_ksi/motor-vehicle-collisions-with-ksi-data-4326.geojson
     formats: [csv, geojson]
     profile_path: data_profiles/ksi_collisions.json
-    analyst_approval_status: needs_review
+    analyst_approval_status: approved_limited_mvp
     grain: involved_party_candidate
     geometry: point_wgs84
     candidate_primary_keys: [_id]
@@ -50,7 +49,6 @@ sources:
       - corridor_safety_snapshot
     caveat_ids:
       - ksi_party_grain
-      - counting_rules_unapproved
       - descriptive_not_causal
       - location_match_uncertainty
 
@@ -65,7 +63,7 @@ sources:
       - datasets/traffic_volume/svc_data_dictionary.xlsx.xlsx
     formats: [csv, xlsx]
     profile_path: data_profiles/traffic_volume.json
-    analyst_approval_status: needs_review
+    analyst_approval_status: approved_limited_mvp
     grain: volume_or_speed_observation
     geometry: point_wgs84
     candidate_primary_keys: [_id, latest_count_id]
@@ -86,7 +84,7 @@ sources:
       - datasets/automated_speed_enforcement_cameras/automated-speed-enforcement-locations-4326.geojson
     formats: [csv, geojson]
     profile_path: data_profiles/automated_speed_enforcement_locations.json
-    analyst_approval_status: needs_review
+    analyst_approval_status: approved_context_only
     grain: camera_location
     geometry: point_wgs84
     candidate_primary_keys: [_id, FID]
@@ -108,12 +106,12 @@ sources:
     package_metadata_path: datasets/toronto_centreline/package_show.json
     formats: [csv, geojson, gpkg, shp]
     profile_path: data_profiles/toronto_centreline.json
-    analyst_approval_status: needs_review
+    analyst_approval_status: approved_for_mvp
     grain: road_or_linear_feature_segment
     geometry: line_wgs84
     refresh_assumption: daily
-    source_last_refreshed: "2026-05-18 18:13:13.07293"
-    row_count: 64408
+    source_last_refreshed: "2026-08-21 18:14:50.822262"
+    row_count: 64341
     candidate_primary_keys: [_id, CENTRELINE_ID]
     required_for:
       - location_resolution
@@ -122,9 +120,9 @@ sources:
     caveat_ids:
       - location_match_uncertainty
     next_actions:
-      - Download into ignored local storage.
-      - Create tracked data profile before using for factual answers.
-      - Validate CRS and segment geometry handling.
+      - Approve which FEATURE_CODE_DESC values participate in road-only corridor matching.
+      - Document normalized street-name and bounded-corridor matching rules.
+      - Validate CRS, geometry, and segment-boundary handling against known corridors.
 
   - id: toronto_intersection_file
     name: Intersection File - City of Toronto
@@ -137,12 +135,12 @@ sources:
     package_metadata_path: datasets/toronto_intersection_file/package_show.json
     formats: [csv, geojson, gpkg, shp]
     profile_path: data_profiles/toronto_intersection_file.json
-    analyst_approval_status: needs_review
+    analyst_approval_status: approved_for_mvp
     grain: intersection
     geometry: point_wgs84
     refresh_assumption: daily
-    source_last_refreshed: "2026-05-18 09:06:44.734665"
-    row_count: 46377
+    source_last_refreshed: "2026-08-20 09:07:42.713883"
+    row_count: 46270
     candidate_primary_keys: [_id, INTERSECTION_ID]
     required_for:
       - intersection_location_resolution
@@ -150,9 +148,9 @@ sources:
     caveat_ids:
       - location_match_uncertainty
     next_actions:
-      - Download into ignored local storage.
-      - Create tracked data profile before using for factual answers.
-      - Validate normalized street-name pair lookup.
+      - Resolve INTERSECTION_ID duplicates caused by multi-elevation pseudo-intersections.
+      - Confirm DATE_EFFECTIVE and DATE_EXPIRY handling for active intersection lookup.
+      - Validate normalized street-name pair lookup and confidence scoring.
 
   - id: area_speed_limit_reductions
     name: Area Speed Limit Reductions
@@ -164,7 +162,7 @@ sources:
     package_metadata_path: datasets/area_speed_limit_reductions/package_show.json
     formats: [csv, geojson, gpkg, shp]
     profile_path: data_profiles/area_speed_limit_reductions.json
-    analyst_approval_status: needs_review
+    analyst_approval_status: approved_context_only
     grain: ward_or_area_program_status
     geometry: polygon_wgs84
     source_last_refreshed: "2026-02-24 20:51:54.17522"
@@ -178,6 +176,47 @@ sources:
       - speed_limit_source_incomplete
     refusal_id: posted_speed_limit_source_missing
 
+  - id: ontario_road_network_road_net_element
+    name: Ontario Road Network: Road Net Element
+    status: available_local
+    source_url: https://data.ontario.ca/en/dataset/ontario-road-network-road-net-element
+    secondary_catalogue_url: https://open.canada.ca/data/en/dataset/c8719fa7-f09c-46fa-a928-f13dd3b613e5
+    local_paths:
+      - datasets/ontario_road_network_road_net_element/ORNELEM.zip
+    package_metadata_path: datasets/ontario_road_network_road_net_element/package_show.json
+    formats: [zip, shp, csv]
+    profile_path: data_profiles/ontario_road_network_road_net_element.json
+    analyst_approval_status: approved_source_lookup_pending
+    grain: road_net_element_with_lrs_event_tables
+    geometry: line_epsg_4269
+    refresh_assumption: weekly
+    source_package_date: "LIO-2026-08-13"
+    source_last_modified_utc: "2026-08-14 08:00:34"
+    feature_count: 584719
+    speed_limit_row_count: 586742
+    candidate_primary_keys: [ORN_ROAD_NET_ELEMENT_ID, OBJECTID]
+    related_tables:
+      - ORN_SPEED_LIMIT
+      - ORN_NUMBER_OF_LANES
+      - ORN_ROAD_CLASS
+      - ORN_JURISDICTION
+      - ORN_OFFICIAL_STREET_NAME
+      - ORN_ADDRESS_INFO
+    required_for:
+      - posted_speed_limit_authority_candidate
+      - road_classification_context
+      - corridor_safety_snapshot
+    limitations:
+      - Province-wide source; Toronto filtering and spatial matching are not implemented.
+      - Speed limits are linear referencing event records and need implemented and tested join logic before factual posted-speed answers.
+      - CRS is EPSG:4269 and may require transformation to project-local spatial standards.
+    caveat_ids:
+      - location_match_uncertainty
+    refusal_id: posted_speed_limit_source_missing
+    next_actions:
+      - Implement a Toronto clip and LRS join from ORN_SPEED_LIMIT to ORN_ROAD_NET_ELEMENT.
+      - Validate sample locations against posted signs or another approved authority before enabling answers.
+
   - id: school_locations_all_types
     name: School Locations - All Types
     status: available_local
@@ -188,7 +227,7 @@ sources:
     package_metadata_path: datasets/school_locations_all_types/package_show.json
     formats: [csv, geojson, gpkg, shp]
     profile_path: data_profiles/school_locations_all_types.json
-    analyst_approval_status: needs_review
+    analyst_approval_status: approved_context_only
     grain: school_location
     geometry: point_wgs84
     source_last_refreshed: "2026-02-20 17:59:51.264671"
@@ -213,7 +252,7 @@ sources:
     package_metadata_path: datasets/school_safety_zone_watch_your_speed_locations/package_show.json
     formats: [csv, geojson, gpkg, shp]
     profile_path: data_profiles/school_safety_zone_watch_your_speed_locations.json
-    analyst_approval_status: needs_review
+    analyst_approval_status: approved_context_only
     grain: watch_your_speed_sign_location
     geometry: point_wgs84
     refresh_assumption: monthly
@@ -255,17 +294,19 @@ sources:
     package_metadata_path: datasets/traffic_and_parking_bylaw_schedules/package_show.json
     formats: [csv, json, xml]
     profile_path: data_profiles/traffic_and_parking_bylaw_schedules.json
-    analyst_approval_status: needs_review
+    analyst_approval_status: refusal_only
     grain: bylaw_schedule_record_candidate
-    source_last_refreshed: "2026-05-18 02:27:49.089099"
-    row_count: 76849
+    source_last_refreshed: "2026-08-22 13:15:39"
+    row_count: 27592
+    date_fields: [Latest_Action_Date]
     candidate_primary_keys: [_id]
     required_for:
       - posted_speed_limit_authority_candidate
       - turn_restriction_status_candidate
       - csz_status_candidate
     limitations:
-      - Candidate authority source only; not profiled, spatially matched, or approved for factual answers.
+      - Candidate authority source only; not spatially matched or approved for factual answers.
+      - Current public CSV exposes only small candidate subsets for speed limits, prohibited turns, and Community Safety Zones.
       - Schedule records may require legal/policy interpretation before public-sector use.
     caveat_ids:
       - bylaw_schedule_unapproved
@@ -312,7 +353,7 @@ sources:
     package_metadata_path: datasets/automated_speed_enforcement_charges/package_show.json
     formats: [xlsx]
     profile_path: data_profiles/automated_speed_enforcement_charges.json
-    analyst_approval_status: needs_review
+    analyst_approval_status: deferred_phase_2
     grain: monthly_ase_charges_by_site_candidate
     refresh_assumption: monthly
     source_last_refreshed: "2026-03-10 16:13:24"
