@@ -1,0 +1,89 @@
+{
+  "profile_version": 1,
+  "dataset_id": "toronto_centreline",
+  "dataset_name": "Toronto Centreline TCL",
+  "status": "available_local",
+  "source_url": "https://open.toronto.ca/dataset/toronto-centreline-tcl/",
+  "profiled_at": "2026-08-22",
+  "profiled_by": "Codex local CSV profile",
+  "source_last_refreshed": "2026-08-21 18:14:50.822262",
+  "license": "open-government-licence-toronto",
+  "analyst_approval_status": "approved_for_mvp",
+  "canonical_grain": "road_or_linear_feature_segment",
+  "geometry": {
+    "type": "LineString",
+    "crs": "EPSG:4326",
+    "field": "geometry"
+  },
+  "candidate_primary_keys": ["_id", "CENTRELINE_ID"],
+  "caveat_ids": [
+    "location_match_uncertainty"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/toronto_centreline/centreline-version-2-4326.csv",
+      "format": "csv",
+      "file_size_bytes": 36274838,
+      "row_count": 64341,
+      "column_count": 41,
+      "required_columns": [
+        "_id",
+        "CENTRELINE_ID",
+        "LINEAR_NAME_FULL",
+        "LINEAR_NAME_FULL_LEGAL",
+        "LINEAR_NAME_LABEL",
+        "FROM_INTERSECTION_ID",
+        "TO_INTERSECTION_ID",
+        "FEATURE_CODE_DESC",
+        "JURISDICTION",
+        "geometry"
+      ],
+      "key_checks": {
+        "_id": {
+          "missing": 0,
+          "distinct": 64341,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        },
+        "CENTRELINE_ID": {
+          "missing": 0,
+          "distinct": 64341,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        }
+      },
+      "observed_summary": {
+        "feature_code_desc_top": {
+          "Local": 24844,
+          "Trail": 11607,
+          "Collector": 6357,
+          "Major Arterial": 5837,
+          "Laneway": 4146,
+          "Minor Arterial": 3550,
+          "Other": 2102,
+          "Expressway": 1189,
+          "Expressway Ramp": 1134
+        },
+        "jurisdiction_counts": {
+          "CITY OF TORONTO": 57563,
+          "PRIVATE": 3091,
+          "PROVINCE": 2322,
+          "UNKNOWN": 1101,
+          "FEDERAL": 264
+        }
+      }
+    },
+    {
+      "path": "datasets/toronto_centreline/centreline-version-2-4326.gpkg",
+      "format": "gpkg",
+      "file_size_bytes": 29499392,
+      "notes": [
+        "Downloaded for spatial work; CSV profile is the reproducible dependency-free validation target."
+      ]
+    }
+  ],
+  "open_questions": [
+    "Confirm which FEATURE_CODE values should participate in road-only corridor matching.",
+    "Approve normalized street-name and bounded-corridor matching rules."
+  ]
+}

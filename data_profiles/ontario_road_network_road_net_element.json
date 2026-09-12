@@ -1,0 +1,96 @@
+{
+  "profile_version": 1,
+  "dataset_id": "ontario_road_network_road_net_element",
+  "dataset_name": "Ontario Road Network: Road Net Element",
+  "status": "available_local",
+  "source_url": "https://data.ontario.ca/en/dataset/ontario-road-network-road-net-element",
+  "profiled_at": "2026-08-22",
+  "profiled_by": "Codex local archive profile",
+  "source_package_date": "LIO-2026-08-13",
+  "source_last_modified_utc": "2026-08-14 08:00:34",
+  "license": "Open Government Licence - Ontario",
+  "analyst_approval_status": "approved_source_lookup_pending",
+  "canonical_grain": "road_net_element_with_lrs_event_tables",
+  "geometry": {
+    "type": "Polyline",
+    "crs": "EPSG:4269",
+    "field": "ORN_ROAD_NET_ELEMENT.shp"
+  },
+  "candidate_primary_keys": ["ORN_ROAD_NET_ELEMENT_ID", "OBJECTID"],
+  "caveat_ids": [
+    "location_match_uncertainty"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/ontario_road_network_road_net_element/ORNELEM.zip",
+      "format": "zip_shapefile_and_csv",
+      "file_size_bytes": 289082280,
+      "sha256": "382d6db4820b92a2bb42a83fa7e4c4f56a039ba31603c93c78782262b633588d",
+      "archive_root": "LIO-2026-08-13/",
+      "key_contents": [
+        {
+          "path": "LIO-2026-08-13/ORN_ROAD_NET_ELEMENT.shp",
+          "format": "shp",
+          "estimated_feature_count": 584719,
+          "count_method": "Shapefile index record count from .shx length"
+        },
+        {
+          "path": "LIO-2026-08-13/ORN_SPEED_LIMIT.csv",
+          "format": "csv",
+          "row_count": 586742,
+          "column_count": 9,
+          "columns": [
+            "EVENT_ID",
+            "ORN_ROAD_NET_ELEMENT_ID",
+            "FROM_MEASURE",
+            "TO_MEASURE",
+            "SPEED_LIMIT",
+            "AGENCY_NAME",
+            "EFFECTIVE_DATETIME",
+            "SYSTEM_DATETIME",
+            "OBJECTID"
+          ]
+        },
+        {
+          "path": "LIO-2026-08-13/ORN_NUMBER_OF_LANES.csv",
+          "format": "csv",
+          "row_count": 588920,
+          "column_count": 9
+        },
+        {
+          "path": "LIO-2026-08-13/ORN_JURISDICTION.csv",
+          "format": "csv",
+          "row_count": 595674,
+          "column_count": 10
+        }
+      ],
+      "validation": {
+        "unzip_test": "passed"
+      }
+    },
+    {
+      "path": "datasets/ontario_road_network_road_net_element/package_show.json",
+      "format": "json",
+      "file_size_bytes": 15135
+    },
+    {
+      "path": "datasets/ontario_road_network_road_net_element/orn_road_net_element_data_description.pdf",
+      "format": "pdf",
+      "file_size_bytes": 441386
+    },
+    {
+      "path": "datasets/ontario_road_network_road_net_element/orn_road_net_element_user_guide.docx",
+      "format": "docx",
+      "file_size_bytes": 3452914
+    }
+  ],
+  "limitations": [
+    "Province-wide source; Toronto filtering and matching have not been implemented.",
+    "Speed limits are stored as linear referencing event records and need approved LRS join logic before factual posted-speed answers are enabled.",
+    "CRS is EPSG:4269, not WGS84 EPSG:4326 like several existing Toronto local exports."
+  ],
+  "open_questions": [
+    "Design and review the join from ORN_SPEED_LIMIT event measures to ORN_ROAD_NET_ELEMENT geometry.",
+    "Decide whether to transform and clip ORN data to a Toronto-only derivative for faster local analysis."
+  ]
+}

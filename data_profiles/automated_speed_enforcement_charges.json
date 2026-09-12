@@ -1,0 +1,33 @@
+{
+  "profile_version": 1,
+  "dataset_id": "ase_charges",
+  "dataset_name": "Automated Speed Enforcement (ASE) Charges",
+  "status": "available_local",
+  "source_url": "https://open.toronto.ca/dataset/automated-speed-enforcement-ase-charges/",
+  "profiled_at": "2026-05-18",
+  "profiled_by": "Codex local XLSX package profile",
+  "source_last_refreshed": "2026-03-10 16:13:24",
+  "license": "License not specified",
+  "analyst_approval_status": "deferred_phase_2",
+  "canonical_grain": "monthly_ase_charges_by_site_candidate",
+  "caveat_ids": [
+    "descriptive_not_causal"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/automated_speed_enforcement_charges/automated-speed-enforcement.xlsx",
+      "format": "xlsx",
+      "file_size_bytes": 208910,
+      "sheet_count": 1,
+      "sheet_names": ["Charges by Site and Month"],
+      "row_count_including_header": 632,
+      "notes": [
+        "XLSX is registered but not fully parsed by the dependency-free profile validator."
+      ]
+    }
+  ],
+  "limitations": [
+    "Monthly aggregated charges only, not individual violation records.",
+    "Useful for descriptive enforcement volume trends after approval, not enforcement-effect or causal claims."
+  ]
+}
