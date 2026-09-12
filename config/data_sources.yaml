@@ -88,12 +88,16 @@ sources:
 
   - id: toronto_centreline
     name: Toronto Centreline TCL
-    status: registered_not_downloaded
+    status: available_local
     source_url: https://open.toronto.ca/dataset/toronto-centreline-tcl/
     ckan_url: https://ckan0.cf.opendata.inter.prod-toronto.ca/en/dataset/toronto-centreline-tcl
-    formats: [csv, geojson, gpkg, shp]
+    local_paths:
+      - datasets/toronto_centreline/centreline-version-2-4326.csv
+      - datasets/toronto_centreline/centreline-version-2-4326.gpkg
+    formats: [csv, gpkg]
     grain: road_or_linear_feature_segment
     geometry: line
+    candidate_primary_keys: [_id, CENTRELINE_ID]
     refresh_assumption: daily
     required_for:
       - location_resolution
@@ -104,11 +108,16 @@ sources:
 
   - id: toronto_intersection_file
     name: Intersection File - City of Toronto
-    status: registered_not_downloaded
+    status: available_local
     source_url: https://data.urbandatacentre.ca/catalogue/city-toronto-intersection-file-city-of-toronto
-    formats: [unknown]
+    local_paths:
+      - datasets/toronto_intersection_file/centreline-intersection-4326.csv
+      - datasets/toronto_intersection_file/centreline-intersection-4326.gpkg
+    formats: [csv, gpkg]
     grain: intersection
-    geometry: point_or_node
+    geometry: point_wgs84
+    candidate_primary_keys: [_id, INTERSECTION_ID]
+    date_fields: [DATE_EFFECTIVE, DATE_EXPIRY]
     required_for:
       - intersection_location_resolution
       - intersection_safety_snapshot
@@ -117,10 +126,16 @@ sources:
 
   - id: area_speed_limit_reductions
     name: Area Speed Limit Reductions
-    status: registered_not_downloaded
+    status: available_local
     source_url: https://open.toronto.ca/dataset/area-speed-limit-reductions/
-    formats: [unknown]
+    local_paths:
+      - datasets/area_speed_limit_reductions/traffic-calming-database-4326.csv
+      - datasets/area_speed_limit_reductions/traffic-calming-database-4326.gpkg
+    formats: [csv, gpkg]
     grain: ward_or_area_program_status
+    geometry: polygon_wgs84
+    candidate_primary_keys: [_id, WARD_NUMBER]
+    refresh_assumption: as_available
     required_for:
       - speed_limit_reduction_context
     limitations:
@@ -130,15 +145,40 @@ sources:
 
   - id: school_locations_all_types
     name: School Locations - All Types
-    status: registered_not_downloaded
+    status: available_local
     source_url: https://open.toronto.ca/dataset/school-locations-all-types/
-    formats: [unknown]
+    local_paths:
+      - datasets/school_locations_all_types/school-locations-all-types-data-4326.csv
+      - datasets/school_locations_all_types/school-locations-all-types-data-4326.gpkg
+    formats: [csv, gpkg]
     grain: school_location
+    geometry: point_wgs84
+    candidate_primary_keys: [_id, OBJECTID, GEO_ID]
+    refresh_assumption: as_available
     required_for:
       - school_zone_context
       - csz_context_candidate
     limitations:
       - School proximity does not establish legal CSZ status by itself.
+
+  - id: school_safety_zone_watch_your_speed_locations
+    name: School Safety Zone Watch Your Speed Program Locations
+    status: available_local
+    source_url: https://open.toronto.ca/dataset/school-safety-zone-watch-your-speed-program-locations/
+    local_paths:
+      - datasets/school_safety_zone_watch_your_speed_locations/stationary-sign-locations-4326.csv
+      - datasets/school_safety_zone_watch_your_speed_locations/stationary-sign-locations-4326.gpkg
+    formats: [csv, gpkg]
+    grain: speed_feedback_sign_location
+    geometry: point_wgs84
+    candidate_primary_keys: [_id, sign_id]
+    date_fields: [start_date, end_date]
+    refresh_assumption: monthly
+    required_for:
+      - school_zone_context
+      - speed_feedback_sign_context
+    limitations:
+      - Sign locations do not establish legal school-zone or Community Safety Zone status by themselves.
 
   - id: community_safety_zones_reference
     name: Community Safety Zones - Vision Zero Reference Page
@@ -172,6 +212,25 @@ sources:
       - legal_restriction_context
     refusal_id: bylaw_source_missing
 
+  - id: traffic_and_parking_bylaw_schedules
+    name: Traffic And Parking By-Law Schedules
+    status: available_local
+    source_url: https://open.toronto.ca/dataset/traffic-and-parking-by-law-schedules/
+    local_paths:
+      - datasets/traffic_and_parking_bylaw_schedules/traffic-and-parking-by-law-schedules-data.csv
+    formats: [csv, json]
+    grain: bylaw_schedule_record
+    candidate_primary_keys: [_id]
+    date_fields: [Latest_Action_Date]
+    refresh_assumption: as_available
+    required_for:
+      - bylaw_authority
+      - legal_restriction_context
+      - turn_restriction_status_candidate
+      - posted_speed_limit_candidate
+    limitations:
+      - Source is Municipal Code Chapter 950 schedule data and still needs domain-specific parsing before legal or current-status answers are approved.
+
   - id: council_staff_reports
     name: Toronto Council And Staff Reports
     status: deferred
@@ -185,13 +244,38 @@ sources:
 
   - id: ase_charges
     name: Automated Speed Enforcement Charges Or Violations
-    status: missing
-    source_url: null
+    status: available_local
+    source_url: https://open.toronto.ca/dataset/automated-speed-enforcement-ase-charges/
+    local_paths:
+      - datasets/automated_speed_enforcement_charges/automated-speed-enforcement.xlsx
+    formats: [xlsx]
     grain: enforcement_record
+    refresh_assumption: monthly
     required_for:
       - ase_ticket_volume
       - enforcement_compliance_claims
-    refusal_id: ase_charges_source_missing
+    limitations:
+      - XLSX ingestion is not part of the first CSV-to-Parquet processing pass.
+      - Requires approved analysis method before making enforcement-effect or compliance claims.
+
+  - id: ontario_road_network_road_net_element
+    name: Ontario Road Network Road Net Element
+    status: available_local
+    source_url: https://data.ontario.ca/en/dataset/ontario-road-network-road-net-element
+    local_paths:
+      - datasets/ontario_road_network_road_net_element/ORNELEM.zip
+    formats: [zip, shp, csv, docx, pdf]
+    grain: provincial_road_network_element
+    geometry: line
+    refresh_assumption: weekly
+    required_for:
+      - posted_speed_limit_candidate
+      - road_classification_context
+      - lane_count_context
+    limitations:
+      - Local source is a ZIP archive; archive extraction and table-specific ingestion are not part of the first CSV-to-Parquet processing pass.
+      - Provincewide ORN records need Toronto filtering and relationship-table joins before use in analyst-facing answers.
+      - Raw ORN-derived DuckDB tables were validated as incorrectly ingested and should be excluded from MVP evidence queries until the ingestion method is fixed.
 
   - id: no_right_turn_on_red_restrictions
     name: No Right Turn On Red Restriction Inventory
