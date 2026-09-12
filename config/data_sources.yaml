@@ -261,6 +261,7 @@ sources:
   - id: ontario_road_network_road_net_element
     name: Ontario Road Network Road Net Element
     status: available_local
+    query_eligible: false
     source_url: https://data.ontario.ca/en/dataset/ontario-road-network-road-net-element
     local_paths:
       - datasets/ontario_road_network_road_net_element/ORNELEM.zip

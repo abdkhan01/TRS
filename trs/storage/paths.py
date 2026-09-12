@@ -21,3 +21,19 @@ def default_duckdb_path(root: Path | None = None) -> Path:
 
 def default_lock_path(root: Path | None = None) -> Path:
     return (root or project_root()) / "data" / "manifest.lock.json"
+
+
+def default_caveats_path(root: Path | None = None) -> Path:
+    return (root or project_root()) / "config" / "caveats.yaml"
+
+
+def default_refusals_path(root: Path | None = None) -> Path:
+    return (root or project_root()) / "config" / "refusals.yaml"
+
+
+def default_templates_path(root: Path | None = None) -> Path:
+    return (root or project_root()) / "config" / "templates.yaml"
+
+
+def default_evidence_schema_path(root: Path | None = None) -> Path:
+    return (root or project_root()) / "schemas" / "evidence_packet.schema.json"

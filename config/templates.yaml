@@ -1,0 +1,68 @@
+# Approved evidence-engine behaviors. Location-dependent templates remain
+# deferred until the location resolver can provide a reviewed spatial scope.
+templates:
+  - id: ksi_trend
+    version: 1
+    status: implemented
+    source_ids: [ksi_collisions]
+    caveat_ids: [ksi_party_grain, counting_rules_unapproved, descriptive_not_causal]
+    handler: ksi_trend
+    parameters:
+      start_year: {type: integer, required: true}
+      end_year: {type: integer, required: true}
+
+  - id: collision_profile
+    version: 1
+    status: implemented
+    source_ids: [traffic_collisions, ksi_collisions]
+    caveat_ids: [ksi_party_grain, counting_rules_unapproved, descriptive_not_causal]
+    handler: collision_profile
+    parameters:
+      start_year: {type: integer, required: true}
+      end_year: {type: integer, required: true}
+
+  - id: intersection_safety_snapshot
+    version: 1
+    status: deferred
+    source_ids: [traffic_collisions, ksi_collisions, toronto_intersection_file]
+    refusal_id: location_resolver_unavailable
+    note: Requires the location resolver before implementation.
+
+  - id: historical_ase_context
+    version: 1
+    status: deferred
+    source_ids: [automated_speed_enforcement_locations, toronto_intersection_file]
+    refusal_id: location_resolver_unavailable
+    note: Requires the location resolver before implementation.
+
+  - id: speed_volume_context
+    version: 1
+    status: deferred
+    source_ids: [traffic_volume, toronto_centreline]
+    refusal_id: location_resolver_unavailable
+    note: Requires the location resolver before implementation.
+
+  - id: posted_speed_limit_lookup
+    version: 1
+    status: refused
+    refusal_id: posted_speed_limit_source_missing
+
+  - id: csz_status_lookup
+    version: 1
+    status: refused
+    refusal_id: csz_structured_source_missing
+
+  - id: turn_restriction_policy_history
+    version: 1
+    status: refused
+    refusal_id: turn_restriction_source_missing
+
+  - id: causal_evaluation
+    version: 1
+    status: refused
+    refusal_id: causal_claim_not_supported
+
+  - id: recommendation
+    version: 1
+    status: refused
+    refusal_id: recommendation_not_supported

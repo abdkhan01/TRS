@@ -22,3 +22,17 @@ The approved first phase is documented in:
 - `eval/golden_questions.yaml`
 
 Raw datasets are large and should not be committed casually. Use `config/data_sources.yaml` as the source registry, then profile and ingest approved local files into ignored `data/` outputs during implementation.
+
+## Evidence Engine
+
+The local evidence engine runs approved deterministic templates from `config/templates.yaml`, validates every output against `schemas/evidence_packet.schema.json`, and renders source provenance, caveats, or refusal reasons from the tracked catalogs.
+
+Run a citywide KSI trend against the local DuckDB database:
+
+```bash
+.venv/bin/python scripts/run_evidence.py ksi_trend \
+  "Show the citywide KSI trend from 2019 to 2023" \
+  --start-year 2019 --end-year 2023
+```
+
+Location-dependent templates currently return the approved `location_resolver_unavailable` refusal. Ontario Road Network tables are explicitly ineligible for evidence queries until their ingestion is corrected.
