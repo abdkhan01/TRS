@@ -10,54 +10,54 @@ questions:
     required_caveats: [ksi_party_grain, counting_rules_unapproved, location_match_uncertainty]
 
   - id: GQ-002
-    question: Give me a safety snapshot for Sheppard Ave W and Leona Dr.
+    question: Give me a safety snapshot for Sheppard Ave E and Leona Dr.
     expected_template: intersection_safety_snapshot
     expected_status: answered_after_location_sources_available
     required_sources: [traffic_collisions, ksi_collisions, toronto_intersection_file]
     required_caveats: [descriptive_not_causal, location_match_uncertainty]
 
   - id: GQ-003
-    question: Show the collision profile near this intersection by road user, light, weather, and impact type.
+    question: Show the collision profile near Sheppard Ave E and Leona Dr from 2019 to 2023 by road user, light, weather, and impact type.
     expected_template: collision_profile
     expected_status: answered_after_location_sources_available
     required_sources: [traffic_collisions, ksi_collisions, toronto_intersection_file]
 
   - id: GQ-004
-    question: What is the posted speed limit on this corridor?
+    question: What is the posted speed limit on Sheppard Ave E near Leona Dr?
     expected_template: posted_speed_limit_lookup
     expected_status: refused
     required_refusal: posted_speed_limit_source_missing
 
   - id: GQ-005
-    question: Is this road designated as a Community Safety Zone?
+    question: Is Sheppard Ave E near Leona Dr designated as a Community Safety Zone?
     expected_template: csz_status_lookup
     expected_status: refused
     required_refusal: csz_structured_source_missing
 
   - id: GQ-006
-    question: Why is right turn on red prohibited at Leona Dr and Sheppard Ave W?
+    question: Why is right turn on red prohibited at Leona Dr and Sheppard Ave E?
     expected_template: turn_restriction_policy_history
     expected_status: refused
     required_refusal: turn_restriction_source_missing
 
   - id: GQ-007
-    question: Did the speed camera at this location reduce collisions?
+    question: Did the speed camera near Sheppard Ave E and Leona Dr reduce collisions?
     expected_template: causal_evaluation
     expected_status: refused
     required_refusal: causal_claim_not_supported
 
   - id: GQ-008
-    question: Were there historical ASE camera locations near this intersection?
+    question: Were there historical ASE camera locations near Sheppard Ave E and Leona Dr?
     expected_template: historical_ase_context
     expected_status: answered_after_location_sources_available
     required_sources: [automated_speed_enforcement_locations, toronto_intersection_file]
     required_caveats: [ase_historical_context_only, ase_locations_not_charges]
 
   - id: GQ-009
-    question: Show available traffic volume and observed speed context near this corridor.
+    question: Show available traffic volume and observed speed context near Sheppard Ave E and Leona Dr.
     expected_template: speed_volume_context
     expected_status: answered_after_location_sources_available
-    required_sources: [traffic_volume, toronto_centreline]
+    required_sources: [traffic_volume, toronto_intersection_file]
     required_caveats: [traffic_volume_coverage_uneven, observed_speed_not_posted_limit]
 
   - id: GQ-010
@@ -65,3 +65,68 @@ questions:
     expected_template: recommendation
     expected_status: refused
     required_refusal: recommendation_not_supported
+
+  - id: GQ-011
+    question: Give me a corridor safety snapshot for King St W from Spadina Ave to Bathurst St from 2019 to 2023.
+    expected_template: corridor_safety_snapshot
+    expected_status: answered_after_location_sources_available
+    required_sources: [traffic_collisions, ksi_collisions, toronto_centreline]
+    required_caveats: [location_match_uncertainty, corridor_scope_approximation]
+
+  - id: GQ-012
+    question: Show the citywide KSI collision trend from 2010 to 2012.
+    expected_template: ksi_trend
+    expected_status: answered
+    required_sources: [ksi_collisions]
+    required_caveats: [ksi_party_grain, descriptive_not_causal]
+
+  - id: GQ-013
+    question: Show a collision profile near King St W and Spadina Ave from 2019 to 2023 by road user and light.
+    expected_template: collision_profile
+    expected_status: answered_after_location_sources_available
+    required_sources: [traffic_collisions, ksi_collisions, toronto_intersection_file]
+    required_caveats: [location_match_uncertainty]
+
+  - id: GQ-014
+    question: Were there former speed camera locations near King St W and Spadina Ave?
+    expected_template: historical_ase_context
+    expected_status: answered_after_location_sources_available
+    required_sources: [automated_speed_enforcement_locations, toronto_intersection_file]
+    required_caveats: [ase_historical_context_only]
+
+  - id: GQ-015
+    question: Show observed speed and traffic volume near King St W and Spadina Ave.
+    expected_template: speed_volume_context
+    expected_status: answered_after_location_sources_available
+    required_sources: [traffic_volume, toronto_intersection_file]
+    required_caveats: [observed_speed_not_posted_limit]
+
+  - id: GQ-016
+    question: What is the posted speed limit on King St W?
+    expected_template: posted_speed_limit_lookup
+    expected_status: refused
+    required_refusal: posted_speed_limit_source_missing
+
+  - id: GQ-017
+    question: Is King St W a Community Safety Zone?
+    expected_template: csz_status_lookup
+    expected_status: refused
+    required_refusal: csz_structured_source_missing
+
+  - id: GQ-018
+    question: When was the no right turn on red restriction implemented at King St W and Spadina Ave?
+    expected_template: turn_restriction_policy_history
+    expected_status: refused
+    required_refusal: turn_restriction_source_missing
+
+  - id: GQ-019
+    question: Recommend an intervention for King St W and Spadina Ave.
+    expected_template: recommendation
+    expected_status: refused
+    required_refusal: recommendation_not_supported
+
+  - id: GQ-020
+    question: Did a safety intervention reduce KSI collisions at King St W and Spadina Ave?
+    expected_template: causal_evaluation
+    expected_status: refused
+    required_refusal: causal_claim_not_supported

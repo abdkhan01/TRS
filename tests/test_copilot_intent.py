@@ -10,7 +10,7 @@ def test_golden_questions_map_to_allow_listed_templates() -> None:
     )
 
     assert report["failed"] == 0, report["cases"]
-    assert report["passed"] == 10
+    assert report["passed"] == 20
 
 
 def test_extracts_typed_explicit_and_relative_date_ranges() -> None:
@@ -40,6 +40,20 @@ def test_extracts_location_without_absorbing_date_phrase() -> None:
     assert unresolved is False
 
 
+def test_extracts_corridor_location_and_routes_template() -> None:
+    question = (
+        "Give me a corridor safety snapshot for King St W from Spadina Ave "
+        "to Bathurst St from 2019 to 2023."
+    )
+
+    location, unresolved = extract_location(question)
+    decision = IntentMapper().map(question)
+
+    assert (location, unresolved) == ("King St W from Spadina Ave to Bathurst St", False)
+    assert decision.template_id == "corridor_safety_snapshot"
+    assert decision.parameters == {"start_year": 2019, "end_year": 2023}
+
+
 def test_extracts_typed_buffer_without_absorbing_it_into_location() -> None:
     question = "Give me a safety snapshot at King St W and Spadina Ave within 50 metres"
 
@@ -48,7 +62,11 @@ def test_extracts_typed_buffer_without_absorbing_it_into_location() -> None:
     decision = IntentMapper().map(question)
 
     assert (location, unresolved) == ("King St W and Spadina Ave", False)
-    assert decision.parameters == {"buffer_meters": 50}
+    assert decision.parameters == {
+        "start_year": 2019,
+        "end_year": 2023,
+        "buffer_meters": 50,
+    }
 
 
 def test_deictic_location_uses_ui_hint_or_requests_clarification() -> None:
@@ -91,3 +109,11 @@ def test_missing_period_for_period_dependent_template_requests_clarification() -
     assert decision.outcome == "clarification"
     assert decision.template_id == "ksi_trend"
     assert "year" in str(decision.message)
+
+
+def test_snapshot_without_period_uses_reviewed_default_window() -> None:
+    decision = IntentMapper().map(
+        "Give me a safety snapshot for King St W and Spadina Ave"
+    )
+
+    assert decision.parameters == {"start_year": 2019, "end_year": 2023}

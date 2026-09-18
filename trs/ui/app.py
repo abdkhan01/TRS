@@ -6,7 +6,7 @@ from typing import Any
 
 from trs.storage.paths import default_duckdb_path
 from trs.ui.exports import evidence_filename, to_json, to_markdown
-from trs.ui.runtime import answer_question
+from trs.ui.runtime import answer_question, log_export_event
 
 
 TEMPLATES = {
@@ -14,6 +14,7 @@ TEMPLATES = {
     "KSI trend": "ksi_trend",
     "Collision profile": "collision_profile",
     "Intersection safety snapshot": "intersection_safety_snapshot",
+    "Corridor safety snapshot": "corridor_safety_snapshot",
     "Historical ASE context": "historical_ase_context",
     "Speed and volume context": "speed_volume_context",
     "Posted speed limit lookup": "posted_speed_limit_lookup",
@@ -45,12 +46,12 @@ def _fallback_error(question: str, template_id: str | None, error: Exception) ->
     }
 
 
-def _render_status(st: Any, packet: dict[str, Any]) -> None:
-    status = str(packet.get("status", "unknown"))
+def _render_status(st: Any, response: dict[str, Any]) -> None:
+    status = str(response.get("status", "unknown"))
     label = f"Status: {status.replace('_', ' ').upper()}"
     if status == "answered":
         st.success(label, icon="✅")
-    elif status in {"partially_answered", "refused"}:
+    elif status in {"partially_answered", "refused", "clarification"}:
         st.warning(label, icon="⚠️")
     else:
         st.error(label, icon="🚨")
@@ -81,7 +82,7 @@ def _render_results(st: Any, results: Any) -> None:
             continue
         st.markdown(f"#### {key.replace('_', ' ').title()}")
         if isinstance(value, list) and value and all(isinstance(row, dict) for row in value):
-            st.dataframe(value, use_container_width=True, hide_index=True)
+            st.dataframe(value, width="stretch", hide_index=True)
         else:
             st.json(value)
 
@@ -128,7 +129,7 @@ def _render_review_panels(st: Any, packet: dict[str, Any]) -> None:
                     }
                     for source in sources
                 ],
-                use_container_width=True,
+                width="stretch",
                 hide_index=True,
             )
         else:
@@ -152,7 +153,7 @@ def _render_review_panels(st: Any, packet: dict[str, Any]) -> None:
         st.json(packet.get("query_metadata") or {})
 
 
-def _render_exports(st: Any, packet: dict[str, Any]) -> None:
+def _render_exports(st: Any, packet: dict[str, Any], log_path: Path | None) -> None:
     st.subheader("Copy or download")
     json_export = to_json(packet)
     markdown_export = to_markdown(packet)
@@ -160,20 +161,24 @@ def _render_exports(st: Any, packet: dict[str, Any]) -> None:
     with json_tab:
         st.caption("Use the copy control on the code block, or download the file.")
         st.code(json_export, language="json")
+        callback = ({"on_click": log_export_event, "args": (log_path, packet, "json")} if log_path else {})
         st.download_button(
             "Download JSON",
             json_export,
             file_name=evidence_filename(packet, "json"),
             mime="application/json",
+            **callback,
         )
     with markdown_tab:
         st.caption("Use the copy control on the code block, or download the file.")
         st.code(markdown_export, language="markdown")
+        callback = ({"on_click": log_export_event, "args": (log_path, packet, "markdown")} if log_path else {})
         st.download_button(
             "Download Markdown",
             markdown_export,
             file_name=evidence_filename(packet, "md"),
             mime="text/markdown",
+            **callback,
         )
 
 
@@ -197,7 +202,10 @@ def run_app() -> None:
         )
         log_path_text = st.text_input(
             "Audit log path (optional)",
-            value=os.environ.get("TRS_COPILOT_LOG_PATH", ""),
+            value=os.environ.get(
+                "TRS_COPILOT_LOG_PATH",
+                str(default_duckdb_path().parent / "audit" / "copilot.jsonl"),
+            ),
         )
         st.caption("Data and processing remain on this machine.")
 
@@ -210,7 +218,10 @@ def run_app() -> None:
         template_label = st.selectbox("Evidence template", options=list(TEMPLATES))
         location_text = st.text_input(
             "Location (optional)",
-            placeholder="Example: Bloor Street West and Keele Street",
+            placeholder=(
+                "Intersection: Bloor St W and Keele St; corridor: "
+                "King St W from Spadina Ave to Bathurst St"
+            ),
         )
         date_left, date_right, buffer_column = st.columns(3)
         with date_left:
@@ -232,7 +243,7 @@ def run_app() -> None:
             template_id = TEMPLATES[template_label]
             try:
                 with st.spinner("Building the evidence packet…"):
-                    packet = answer_question(
+                    response = answer_question(
                         Path(db_path_text).expanduser(),
                         question.strip(),
                         template_id=template_id,
@@ -248,19 +259,36 @@ def run_app() -> None:
                     )
             except Exception as exc:
                 packet = _fallback_error(question.strip(), template_id, exc)
-            st.session_state["last_evidence_packet"] = packet
+                response = {
+                    "status": "error",
+                    "summary": "The local analyst application could not complete the request.",
+                    "packet": packet,
+                    "metrics": {},
+                }
+            st.session_state["last_copilot_response"] = response
 
-    packet = st.session_state.get("last_evidence_packet")
-    if packet:
+    response = st.session_state.get("last_copilot_response")
+    if response:
         st.divider()
-        _render_status(st, packet)
+        _render_status(st, response)
+        if response.get("summary"):
+            st.markdown("### Evidence summary")
+            st.write(response["summary"])
+        packet = response.get("packet")
+        if not packet:
+            st.info("No evidence packet was run. Update the request using the clarification above.")
+            return
         error = (packet.get("results") or {}).get("error")
         if error:
             st.error(f"Query error: {error}")
         _render_refusals(st, packet.get("refusals") or [])
         _render_results(st, packet.get("results") or {})
         _render_review_panels(st, packet)
-        _render_exports(st, packet)
+        _render_exports(
+            st,
+            packet,
+            Path(log_path_text).expanduser() if log_path_text.strip() else None,
+        )
     else:
         st.info(
             "Ask a question to create an evidence packet. Unsupported requests "

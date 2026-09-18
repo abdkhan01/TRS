@@ -13,6 +13,7 @@ SUPPORTED_TEMPLATE_IDS = frozenset(
         "ksi_trend",
         "collision_profile",
         "intersection_safety_snapshot",
+        "corridor_safety_snapshot",
         "historical_ase_context",
         "speed_volume_context",
         "posted_speed_limit_lookup",
@@ -26,6 +27,7 @@ SUPPORTED_TEMPLATE_IDS = frozenset(
 LOCATION_REQUIRED_TEMPLATE_IDS = frozenset(
     {
         "intersection_safety_snapshot",
+        "corridor_safety_snapshot",
         "historical_ase_context",
         "speed_volume_context",
     }
@@ -53,6 +55,7 @@ _RANGE_PATTERNS = (
 _LAST_YEARS = re.compile(r"\b(?:in\s+)?(?:the\s+)?last\s+(?P<count>\d{1,2})\s+years?\b", re.I)
 _SINCE_YEAR = re.compile(rf"\bsince\s+(?P<start>{_YEAR})\b", re.I)
 _SINGLE_YEAR = re.compile(rf"\b(?:in|during|for)\s+(?P<year>{_YEAR})\b", re.I)
+DEFAULT_SNAPSHOT_PERIOD = {"start_year": 2019, "end_year": 2023}
 _BUFFER_PATTERNS = (
     re.compile(r"\bwithin\s+(?P<buffer>\d{1,4})\s*(?:m|metres?|meters?)\b", re.I),
     re.compile(r"\b(?P<buffer>\d{1,4})\s*(?:m|metres?|meters?)\s+buffer\b", re.I),
@@ -66,6 +69,12 @@ _LOCATION_PREFIX = re.compile(
 _INTERSECTION_NOUN = re.compile(
     r"\bintersection\s+(?:of\s+)?(?P<location>[^?.]+?)"
     r"(?=\s+(?:from|between|during|since|in\s+(?:the\s+)?last)\b|[?.]|$)",
+    re.IGNORECASE,
+)
+_CORRIDOR_LOCATION = re.compile(
+    r"\b(?:for|near|on)\s+(?P<location>[^?.]+?\s+from\s+"
+    r"(?!(?:19|20)\d{2}\b)[^?.]+?\s+to\s+(?!(?:19|20)\d{2}\b)[^?.]+?)"
+    r"(?=\s+(?:from|between|during|since|in\s+(?:the\s+)?last)\s+(?:19|20)\d{2}|[?.]|$)",
     re.IGNORECASE,
 )
 
@@ -139,7 +148,15 @@ DEFAULT_RULES: tuple[IntentRule, ...] = (
     IntentRule(
         "intersection_snapshot",
         "intersection_safety_snapshot",
-        _patterns(r"\b(?:safety|intersection)\s+snapshot\b|\bsnapshot\b.+\bintersection\b"),
+        _patterns(
+            r"^(?!.*\bcorridor\b).*\bsafety\s+snapshot\b|"
+            r"\bintersection\s+(?:safety\s+)?snapshot\b|\bsnapshot\b.+\bintersection\b"
+        ),
+    ),
+    IntentRule(
+        "corridor_snapshot",
+        "corridor_safety_snapshot",
+        _patterns(r"\bcorridor\s+(?:safety\s+)?snapshot\b|\bsafety\s+snapshot\b.+\bcorridor\b"),
     ),
     IntentRule(
         "collision_profile",
@@ -176,7 +193,7 @@ def extract_location(question: str, *, location_hint: str | None = None) -> tupl
             return _clean_location(location_hint), False
         return None, True
 
-    for pattern in (_INTERSECTION_NOUN, _LOCATION_PREFIX):
+    for pattern in (_CORRIDOR_LOCATION, _INTERSECTION_NOUN, _LOCATION_PREFIX):
         matches = list(pattern.finditer(question))
         for match in reversed(matches):
             candidate = _clean_location(match.group("location"))
@@ -265,7 +282,7 @@ class IntentMapper:
             return IntentDecision(
                 outcome="clarification",
                 message=(
-                    "I can route KSI trends, collision profiles, intersection snapshots, "
+                    "I can route KSI trends, collision profiles, intersection or corridor snapshots, "
                     "traffic volume/observed-speed context, historical ASE context, and "
                     "approved refusal topics. Please restate the request using one of those scopes."
                 ),
@@ -281,6 +298,8 @@ class IntentMapper:
         parameters, date_error = extract_date_parameters(normalized, current_year=self.year_provider())
         buffer_parameter, buffer_error = extract_buffer_parameter(normalized)
         parameters.update(buffer_parameter)
+        if rule.template_id in {"intersection_safety_snapshot", "corridor_safety_snapshot"}:
+            parameters = {**DEFAULT_SNAPSHOT_PERIOD, **parameters}
         if date_error or buffer_error:
             return IntentDecision(
                 outcome="clarification",

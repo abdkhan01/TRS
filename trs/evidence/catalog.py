@@ -150,7 +150,7 @@ def source_metadata(
                 "version": ",".join(hashes) or None,
                 "source_url": source.get("source_url"),
                 "local_path": str(local_paths[0]) if local_paths else None,
-                "date_range": None,
+                "date_range": str(source["date_range"]) if source.get("date_range") is not None else None,
                 "downloaded_at": generated[-1] if generated else None,
             }
         )

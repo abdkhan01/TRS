@@ -12,6 +12,7 @@ sources:
     formats: [csv, geojson]
     grain: collision_event_candidate
     geometry: point_wgs84
+    date_range: 2014-2025
     candidate_primary_keys: [_id]
     date_fields: [OCC_DATE, OCC_YEAR, OCC_MONTH, OCC_DOW, OCC_HOUR]
     required_for:
@@ -33,6 +34,7 @@ sources:
     formats: [csv, geojson]
     grain: involved_party_candidate
     geometry: point_wgs84
+    date_range: 2006-2023
     candidate_primary_keys: [_id]
     candidate_event_keys: [ACCNUM]
     date_fields: [DATE, TIME]
@@ -59,6 +61,7 @@ sources:
     formats: [csv, xlsx]
     grain: volume_or_speed_observation
     geometry: point_wgs84
+    date_range: 1993-2025
     candidate_primary_keys: [_id, latest_count_id]
     date_fields: [latest_count_date_start, latest_count_date_end]
     required_for:
@@ -77,6 +80,7 @@ sources:
       - datasets/automated_speed_enforcement_cameras/automated-speed-enforcement-locations-4326.geojson
     formats: [csv, geojson]
     grain: camera_location
+    date_range: historical locations; source snapshot ingested 2026-08-30
     geometry: point_wgs84
     candidate_primary_keys: [_id, FID]
     required_for:

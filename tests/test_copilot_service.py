@@ -190,11 +190,18 @@ def test_jsonl_audit_is_append_only_and_metrics_are_aggregated(tmp_path: Path) -
 
     lines = path.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 2
-    assert json.loads(lines[0])["template_id"] == "ksi_trend"
+    first_event = json.loads(lines[0])
+    assert first_event["template_id"] == "ksi_trend"
+    assert first_event["event_type"] == "query"
+    assert first_event["sources"] == ["ksi_collisions"]
+    assert first_event["caveats"] == ["descriptive_not_causal"]
+    assert first_event["llm_used"] is False
     metrics = load_audit_metrics(path)
     assert metrics["event_count"] == 2
     assert metrics["status_counts"] == {"answered": 1, "refused": 1}
+    assert metrics["event_type_counts"] == {"query": 2}
     assert metrics["average_runtime_ms"] is not None
+    assert metrics["median_runtime_ms"] is not None
 
 
 def test_audit_logger_can_omit_raw_question(tmp_path: Path) -> None:

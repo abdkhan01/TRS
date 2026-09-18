@@ -4,7 +4,7 @@ templates:
     version: 1
     status: implemented
     source_ids: [ksi_collisions]
-    caveat_ids: [ksi_party_grain, ksi_event_key_fallback, counting_rules_unapproved, descriptive_not_causal]
+    caveat_ids: [ksi_party_grain, ksi_event_key_fallback, ksi_source_ends_2023, counting_rules_unapproved, descriptive_not_causal]
     handler: ksi_trend
     location: optional
     parameters:
@@ -16,7 +16,7 @@ templates:
     version: 1
     status: implemented
     source_ids: [traffic_collisions, ksi_collisions]
-    caveat_ids: [ksi_party_grain, ksi_event_key_fallback, counting_rules_unapproved, descriptive_not_causal]
+    caveat_ids: [ksi_party_grain, ksi_event_key_fallback, ksi_source_ends_2023, counting_rules_unapproved, descriptive_not_causal]
     handler: collision_profile
     location: optional
     parameters:
@@ -28,7 +28,7 @@ templates:
     version: 1
     status: implemented
     source_ids: [traffic_collisions, ksi_collisions, toronto_intersection_file]
-    caveat_ids: [ksi_party_grain, counting_rules_unapproved, descriptive_not_causal, location_match_uncertainty]
+    caveat_ids: [ksi_party_grain, ksi_event_key_fallback, ksi_source_ends_2023, counting_rules_unapproved, descriptive_not_causal, location_match_uncertainty]
     handler: intersection_safety_snapshot
     location: required
     parameters:
@@ -40,7 +40,7 @@ templates:
     version: 1
     status: implemented
     source_ids: [traffic_collisions, ksi_collisions, toronto_centreline]
-    caveat_ids: [ksi_party_grain, counting_rules_unapproved, descriptive_not_causal, location_match_uncertainty, corridor_scope_approximation]
+    caveat_ids: [ksi_party_grain, ksi_event_key_fallback, ksi_source_ends_2023, counting_rules_unapproved, descriptive_not_causal, location_match_uncertainty, corridor_scope_approximation]
     handler: corridor_safety_snapshot
     location: required
     parameters:

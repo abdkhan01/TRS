@@ -20,6 +20,21 @@ class LocationResolver:
         self.db_path = Path(db_path)
 
     def resolve(self, text: str) -> dict[str, Any]:
+        corridor = _CORRIDOR_TEXT.match(text)
+        if corridor:
+            street = corridor.group("street").strip()
+            start = corridor.group("start").strip()
+            end = corridor.group("end").strip()
+            return resolve_location(
+                self.db_path,
+                {
+                    "type": "corridor",
+                    "input": text,
+                    "street_name": street,
+                    "start": {"input": f"{street} and {start}"},
+                    "end": {"input": f"{street} and {end}"},
+                },
+            )
         return resolve_location(
             self.db_path,
             {"type": "intersection", "input": text},
@@ -28,6 +43,10 @@ class LocationResolver:
 
 _SEPARATOR = re.compile(r"\s*(?:/|&|\band\b|\bat\b)\s*", re.IGNORECASE)
 _TOKEN = re.compile(r"[^a-z0-9]+")
+_CORRIDOR_TEXT = re.compile(
+    r"^\s*(?P<street>.+?)\s+from\s+(?P<start>.+?)\s+to\s+(?P<end>.+?)\s*$",
+    re.IGNORECASE,
+)
 
 
 def _normalise(value: str) -> str:

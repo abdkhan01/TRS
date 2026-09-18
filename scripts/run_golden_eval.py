@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from trs.copilot import CopilotService, GoldenQuestionEvaluator, IntentMapper, JsonlAuditLogger
 from trs.evidence.engine import EvidenceEngine
+from trs.geo.resolver import LocationResolver
 from trs.storage.paths import default_duckdb_path, project_root
 
 
@@ -33,7 +34,11 @@ def main() -> int:
         evaluator = GoldenQuestionEvaluator(intent_mapper=IntentMapper())
     else:
         logger = JsonlAuditLogger(args.audit_log) if args.audit_log else None
-        service = CopilotService(EvidenceEngine(args.db), audit_logger=logger)
+        service = CopilotService(
+            EvidenceEngine(args.db),
+            resolver=LocationResolver(args.db),
+            audit_logger=logger,
+        )
         evaluator = GoldenQuestionEvaluator(runner=service.ask)
     report = evaluator.evaluate(args.golden)
     print(json.dumps(report, indent=2, default=str))
