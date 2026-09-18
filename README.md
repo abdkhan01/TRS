@@ -36,3 +36,18 @@ Run a citywide KSI trend against the local DuckDB database:
 ```
 
 Location-dependent templates currently return the approved `location_resolver_unavailable` refusal. Ontario Road Network tables are explicitly ineligible for evidence queries until their ingestion is corrected.
+
+## Local Analyst UI
+
+Install the project dependencies, ingest the local datasets, and start the Streamlit analyst interface from the repository root:
+
+```bash
+.venv/bin/pip install -r requirements.txt
+.venv/bin/streamlit run scripts/run_analyst_ui.py
+```
+
+The UI uses `data/trs.duckdb` by default. Set `TRS_DB_PATH` or edit the path in the sidebar to use another local database. An optional append-only audit-log path can be supplied with `TRS_COPILOT_LOG_PATH` or in the sidebar.
+
+The interface supports automatic question classification or an explicit evidence template, date range, optional location and buffer inputs. Every response exposes its status, evidence, refusals, source versions, location assumptions, methods, caveats, and reproducibility metadata. JSON and Markdown evidence reports are copy- and download-ready.
+
+The UI is deliberately local and single-user for the MVP. It does not authenticate users or host data, and it does not bypass evidence-engine refusals when a reviewed source or location resolver is unavailable.
