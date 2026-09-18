@@ -24,7 +24,7 @@ The Evidence Copilot must avoid counting rows when the analytical question requi
 | Dataset | Current row grain assumption | MVP counting rule | Approval status |
 |---|---|---|---|
 | Traffic collisions | Collision occurrence row. | Count rows by `_id` only after verifying `_id` is unique and one row equals one collision occurrence. | Needs validation |
-| Motor vehicle collisions involving KSI | Involved-party row. | Count unique `ACCNUM` for event-level KSI collisions; count rows only for involved-party breakdowns. | Needs analyst approval |
+| Motor vehicle collisions involving KSI | Involved-party row. | Count a normalized event key: usable `ACCNUM` when present, otherwise a provisional composite of `DATE`, `TIME`, `STREET1`, `STREET2`, and geometry. Count rows only for involved-party breakdowns. | Needs analyst approval |
 | Traffic volume summary | Latest count summary per location/count id. | Count observations by `latest_count_id`; do not infer continuous coverage. | Needs validation |
 | Traffic volume raw files | Observation rows by count/time/bin. | Aggregate only within known count windows and method-specific fields. | Needs validation |
 | ASE camera locations | Camera location row. | Count camera-location records only; never infer ticket volume or compliance. | Needs validation |
@@ -40,7 +40,7 @@ The Evidence Copilot must avoid counting rows when the analytical question requi
 
 ## Open Analyst Questions
 
-1. Is `ACCNUM` approved as the event-level identifier for KSI counts?
+1. Is the hybrid KSI event key approved, including its composite fallback for years where `ACCNUM` is missing?
 2. Does the traffic-collisions file contain one row per collision occurrence for all years?
 3. Which injury/severity fields should be used for official pedestrian, cyclist, motorist, fatal, and serious injury summaries?
 4. What default intersection buffer should be used for a first MVP: 30m, 50m, 100m, or analyst-selected?

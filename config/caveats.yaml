@@ -15,6 +15,10 @@ caveats:
     text: The KSI dataset appears to include involved-party rows. Event-level KSI counts should use a validated collision identifier, not raw row counts.
     applies_to: [ksi_counts, ksi_profiles]
 
+  ksi_event_key_fallback:
+    text: KSI records without a usable ACCNUM are grouped with a provisional occurrence key built from date, time, streets, and geometry. Analysts must approve this fallback before official use.
+    applies_to: [ksi_counts, ksi_profiles]
+
   traffic_volume_coverage_uneven:
     text: Traffic volume and observed speed data are available only where and when counts were collected. Missing nearby counts do not mean low traffic or low speed.
     applies_to: [speed_volume_context]

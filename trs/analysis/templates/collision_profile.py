@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from trs.analysis.event_keys import KSI_EVENT_KEY_SQL
 from trs.analysis.runner import run_query
 from trs.evidence.packet import build_evidence_packet
 
@@ -20,21 +21,21 @@ from traffic_collisions
 where try_cast("OCC_YEAR" as integer) between ? and ?
 """
 
-KSI_DIMENSION_SQL = """
+KSI_DIMENSION_SQL = f"""
 select
     dimension,
     category,
     count(distinct collision_id)::integer as ksi_collision_count
 from (
-    select "ACCNUM" as collision_id, 'light' as dimension, coalesce(nullif(trim("LIGHT"), ''), 'Unknown') as category,
+    select {KSI_EVENT_KEY_SQL} as collision_id, 'light' as dimension, coalesce(nullif(trim("LIGHT"), ''), 'Unknown') as category,
            extract(year from try_cast("DATE" as timestamp))::integer as collision_year
     from ksi_collisions
     union all
-    select "ACCNUM", 'visibility', coalesce(nullif(trim("VISIBILITY"), ''), 'Unknown'),
+    select {KSI_EVENT_KEY_SQL}, 'visibility', coalesce(nullif(trim("VISIBILITY"), ''), 'Unknown'),
            extract(year from try_cast("DATE" as timestamp))::integer
     from ksi_collisions
     union all
-    select "ACCNUM", 'impact_type', coalesce(nullif(trim("IMPACTYPE"), ''), 'Unknown'),
+    select {KSI_EVENT_KEY_SQL}, 'impact_type', coalesce(nullif(trim("IMPACTYPE"), ''), 'Unknown'),
            extract(year from try_cast("DATE" as timestamp))::integer
     from ksi_collisions
 ) dimensions
@@ -83,7 +84,7 @@ def collision_profile(
         methods=[
             "Traffic collision totals use distinct _id values from the event-grain candidate source.",
             "Road-user categories may overlap because a collision can involve multiple modes.",
-            "Light, visibility, and impact breakdowns count distinct KSI ACCNUM values per category.",
+            "KSI breakdowns use ACCNUM when populated and a deterministic occurrence-field fallback key otherwise.",
         ],
         caveat_ids=caveat_ids,
         location=location,

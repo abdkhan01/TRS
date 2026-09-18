@@ -5,7 +5,7 @@ templates:
     version: 1
     status: implemented
     source_ids: [ksi_collisions]
-    caveat_ids: [ksi_party_grain, counting_rules_unapproved, descriptive_not_causal]
+    caveat_ids: [ksi_party_grain, ksi_event_key_fallback, counting_rules_unapproved, descriptive_not_causal]
     handler: ksi_trend
     parameters:
       start_year: {type: integer, required: true}
@@ -15,7 +15,7 @@ templates:
     version: 1
     status: implemented
     source_ids: [traffic_collisions, ksi_collisions]
-    caveat_ids: [ksi_party_grain, counting_rules_unapproved, descriptive_not_causal]
+    caveat_ids: [ksi_party_grain, ksi_event_key_fallback, counting_rules_unapproved, descriptive_not_causal]
     handler: collision_profile
     parameters:
       start_year: {type: integer, required: true}
