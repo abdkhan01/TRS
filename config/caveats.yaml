@@ -23,6 +23,10 @@ caveats:
     text: KSI records without a usable ACCNUM are grouped with a provisional occurrence key built from date, time, streets, and geometry. Analysts must approve this fallback before official use.
     applies_to: [ksi_counts, ksi_profiles]
 
+  ksi_source_ends_2023:
+    text: The registered KSI source ends in 2023. A requested period extending beyond 2023 has no KSI observations for later years and must not be interpreted as zero collisions.
+    applies_to: [ksi_counts, ksi_profiles]
+
   traffic_volume_coverage_uneven:
     text: Traffic volume and observed speed data are available only where and when counts were collected. Missing nearby counts do not mean low traffic or low speed.
     applies_to: [speed_volume_context]

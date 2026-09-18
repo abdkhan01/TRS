@@ -44,6 +44,7 @@ def test_source_metadata_merges_manifest_provenance(tmp_path: Path) -> None:
 
     assert sources[0]["version"] == "abc123"
     assert sources[0]["downloaded_at"] == "2026-01-01T00:00:00+00:00"
+    assert sources[0]["date_range"] == "2006-2023"
 
 
 def test_incorrect_ontario_road_network_is_not_query_eligible() -> None:

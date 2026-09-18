@@ -329,12 +329,19 @@ class CopilotService:
         if self.audit_logger is not None:
             packet = final.packet or {}
             event = {
+                "event_type": "query",
                 "request_id": request_id,
                 "question": question,
                 "status": final.status,
                 "template_id": final.decision.template_id,
                 "decision": final.decision.to_dict(),
                 "packet_id": packet.get("packet_id"),
+                "parameters": packet.get("parameters", final.decision.parameters),
+                "location": packet.get("location"),
+                "sources": [source.get("source_id") for source in packet.get("sources", [])],
+                "caveats": [caveat.get("caveat_id") for caveat in packet.get("caveats", [])],
+                "refusals": [refusal.get("refusal_id") for refusal in packet.get("refusals", [])],
+                "llm_used": False,
                 "metrics": final.metrics,
             }
             try:

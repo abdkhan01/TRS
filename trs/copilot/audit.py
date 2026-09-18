@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import threading
+from statistics import median
 from collections import Counter
 from collections.abc import Mapping
 from datetime import UTC, datetime
@@ -35,6 +36,7 @@ def load_audit_metrics(path: Path) -> dict[str, Any]:
 
     statuses: Counter[str] = Counter()
     templates: Counter[str] = Counter()
+    event_types: Counter[str] = Counter()
     runtimes: list[float] = []
     corrupt_lines = 0
     if not path.exists():
@@ -42,7 +44,9 @@ def load_audit_metrics(path: Path) -> dict[str, Any]:
             "event_count": 0,
             "status_counts": {},
             "template_counts": {},
+            "event_type_counts": {},
             "average_runtime_ms": None,
+            "median_runtime_ms": None,
             "corrupt_lines": 0,
         }
     with path.open("r", encoding="utf-8") as handle:
@@ -53,6 +57,7 @@ def load_audit_metrics(path: Path) -> dict[str, Any]:
                 corrupt_lines += 1
                 continue
             statuses[str(event.get("status", "unknown"))] += 1
+            event_types[str(event.get("event_type", "query"))] += 1
             template_id = event.get("template_id")
             if template_id:
                 templates[str(template_id)] += 1
@@ -63,6 +68,8 @@ def load_audit_metrics(path: Path) -> dict[str, Any]:
         "event_count": sum(statuses.values()),
         "status_counts": dict(statuses),
         "template_counts": dict(templates),
+        "event_type_counts": dict(event_types),
         "average_runtime_ms": sum(runtimes) / len(runtimes) if runtimes else None,
+        "median_runtime_ms": median(runtimes) if runtimes else None,
         "corrupt_lines": corrupt_lines,
     }
