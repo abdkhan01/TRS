@@ -3,18 +3,18 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from trs.analysis.event_keys import KSI_EVENT_KEY_SQL
 from trs.analysis.runner import run_query
 from trs.evidence.packet import build_evidence_packet
 
 
 TEMPLATE_ID = "ksi_trend"
-SQL = """
+SQL = f"""
 with event_years as (
     select
-        "ACCNUM" as collision_id,
+        {KSI_EVENT_KEY_SQL} as collision_id,
         extract(year from try_cast("DATE" as timestamp))::integer as collision_year
     from ksi_collisions
-    where "ACCNUM" is not null
 )
 select
     collision_year as year,
@@ -53,7 +53,7 @@ def ksi_trend(
         results={"series": query.rows, "ksi_collision_count": total},
         source_ids=source_ids,
         methods=[
-            "KSI collision events are counted as distinct ACCNUM values.",
+            "KSI collision events use ACCNUM when populated; records without a usable ACCNUM use a deterministic DATE, TIME, STREET1, STREET2, and geometry fallback key.",
             "The year is extracted from DATE and filtered inclusively.",
         ],
         caveat_ids=caveat_ids,
