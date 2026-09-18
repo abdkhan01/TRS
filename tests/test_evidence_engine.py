@@ -130,11 +130,11 @@ def test_engine_rejects_missing_template_parameters(tmp_path: Path) -> None:
 
 
 def test_engine_rejects_unknown_template_parameters(tmp_path: Path) -> None:
-    with pytest.raises(CatalogError, match="Unknown parameters.*buffer_meters"):
+    with pytest.raises(CatalogError, match="Unknown parameters.*unsupported_parameter"):
         EvidenceEngine(tmp_path / "not-needed.duckdb").run(
             "ksi_trend",
             question="Show the KSI trend",
-            parameters={"start_year": 2021, "end_year": 2022, "buffer_meters": 50},
+            parameters={"start_year": 2021, "end_year": 2022, "unsupported_parameter": 50},
         )
 
 

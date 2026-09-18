@@ -1,5 +1,4 @@
-# Approved evidence-engine behaviors. Location-dependent templates remain
-# deferred until the location resolver can provide a reviewed spatial scope.
+# Approved deterministic evidence-engine behaviors.
 templates:
   - id: ksi_trend
     version: 1
@@ -7,9 +6,11 @@ templates:
     source_ids: [ksi_collisions]
     caveat_ids: [ksi_party_grain, counting_rules_unapproved, descriptive_not_causal]
     handler: ksi_trend
+    location: optional
     parameters:
       start_year: {type: integer, required: true}
       end_year: {type: integer, required: true}
+      buffer_meters: {type: integer, required: false}
 
   - id: collision_profile
     version: 1
@@ -17,30 +18,56 @@ templates:
     source_ids: [traffic_collisions, ksi_collisions]
     caveat_ids: [ksi_party_grain, counting_rules_unapproved, descriptive_not_causal]
     handler: collision_profile
+    location: optional
     parameters:
       start_year: {type: integer, required: true}
       end_year: {type: integer, required: true}
+      buffer_meters: {type: integer, required: false}
 
   - id: intersection_safety_snapshot
     version: 1
-    status: deferred
+    status: implemented
     source_ids: [traffic_collisions, ksi_collisions, toronto_intersection_file]
-    refusal_id: location_resolver_unavailable
-    note: Requires the location resolver before implementation.
+    caveat_ids: [ksi_party_grain, counting_rules_unapproved, descriptive_not_causal, location_match_uncertainty]
+    handler: intersection_safety_snapshot
+    location: required
+    parameters:
+      start_year: {type: integer, required: true}
+      end_year: {type: integer, required: true}
+      buffer_meters: {type: integer, required: false}
+
+  - id: corridor_safety_snapshot
+    version: 1
+    status: implemented
+    source_ids: [traffic_collisions, ksi_collisions, toronto_centreline]
+    caveat_ids: [ksi_party_grain, counting_rules_unapproved, descriptive_not_causal, location_match_uncertainty, corridor_scope_approximation]
+    handler: corridor_safety_snapshot
+    location: required
+    parameters:
+      start_year: {type: integer, required: true}
+      end_year: {type: integer, required: true}
+      buffer_meters: {type: integer, required: false}
 
   - id: historical_ase_context
     version: 1
-    status: deferred
+    status: implemented
     source_ids: [automated_speed_enforcement_locations, toronto_intersection_file]
-    refusal_id: location_resolver_unavailable
-    note: Requires the location resolver before implementation.
+    caveat_ids: [ase_historical_context_only, ase_locations_not_charges, location_match_uncertainty]
+    handler: historical_ase_context
+    location: required
+    parameters:
+      buffer_meters: {type: integer, required: false}
 
   - id: speed_volume_context
     version: 1
-    status: deferred
+    status: implemented
     source_ids: [traffic_volume, toronto_centreline]
-    refusal_id: location_resolver_unavailable
-    note: Requires the location resolver before implementation.
+    caveat_ids: [traffic_volume_coverage_uneven, observed_speed_not_posted_limit, descriptive_not_causal, location_match_uncertainty]
+    handler: speed_volume_context
+    location: required
+    parameters:
+      buffer_meters: {type: integer, required: false}
+      limit: {type: integer, required: false}
 
   - id: posted_speed_limit_lookup
     version: 1
