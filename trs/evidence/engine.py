@@ -5,14 +5,26 @@ from typing import Any
 
 import duckdb
 
-from trs.analysis.templates import collision_profile, ksi_trend
+from trs.analysis.templates import (
+    collision_profile,
+    corridor_snapshot,
+    historical_ase_context,
+    intersection_snapshot,
+    ksi_trend,
+    speed_volume_context,
+)
 from trs.evidence.catalog import CatalogError, load_templates
 from trs.evidence.packet import build_error_packet, build_refusal_packet
+from trs.geo.resolver import LocationResolutionError, resolve_location
 
 
 HANDLERS = {
     "ksi_trend": ksi_trend,
     "collision_profile": collision_profile,
+    "intersection_safety_snapshot": intersection_snapshot,
+    "corridor_safety_snapshot": corridor_snapshot,
+    "historical_ase_context": historical_ase_context,
+    "speed_volume_context": speed_volume_context,
 }
 
 
@@ -77,20 +89,49 @@ class EvidenceEngine:
         if handler_id not in HANDLERS:
             raise CatalogError(f"Template '{template_id}' has no implemented handler")
         values = parameters or {}
-        _validate_parameters(template_id, template, values)
         source_ids = tuple(str(item) for item in template.get("source_ids", []))
         caveat_ids = tuple(str(item) for item in template.get("caveat_ids", []))
+        resolved_location = location
+        location_mode = str(template.get("location", "optional"))
+        if location is not None:
+            if not (location.get("match_confidence") and location.get("geometry")):
+                try:
+                    resolved_location = resolve_location(self.db_path, location)
+                except (LocationResolutionError, duckdb.Error) as exc:
+                    return build_refusal_packet(
+                        question=question,
+                        template_id=template_id,
+                        refusal_id="location_resolver_unavailable",
+                        parameters=values,
+                        location={
+                            "input": str(location.get("input", "")),
+                            "resolved_name": None,
+                            "geometry": None,
+                            "match_confidence": "unresolved",
+                            "method": f"Local location resolution failed: {exc}",
+                        },
+                        **packet_paths,
+                    )
+        elif location_mode == "required":
+            return build_refusal_packet(
+                question=question,
+                template_id=template_id,
+                refusal_id="location_resolver_unavailable",
+                parameters=values,
+                **packet_paths,
+            )
+        _validate_parameters(template_id, template, values)
         try:
             return HANDLERS[handler_id](
                 self.db_path,
                 question=question,
-                location=location,
+                location=resolved_location,
                 source_ids=source_ids,
                 caveat_ids=caveat_ids,
                 **values,
                 **packet_paths,
             )
-        except duckdb.Error as exc:
+        except (duckdb.Error, ValueError) as exc:
             return build_error_packet(
                 question=question,
                 template_id=template_id,
@@ -98,6 +139,6 @@ class EvidenceEngine:
                 parameters=values,
                 source_ids=source_ids,
                 caveat_ids=caveat_ids,
-                location=location,
+                location=resolved_location,
                 **packet_paths,
             )

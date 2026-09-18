@@ -7,6 +7,10 @@ caveats:
     text: Location matching depends on the resolver method, buffer, and source geometry. Analysts should review the resolved location before official use.
     applies_to: [intersection_safety_snapshot, corridor_safety_snapshot]
 
+  corridor_scope_approximation:
+    text: Corridor evidence follows locally matched Centreline segments when a connected route is available; otherwise it uses the straight line between reviewed endpoints. Review low-confidence corridor geometry before official use.
+    applies_to: [corridor_safety_snapshot, corridor_location_queries]
+
   counting_rules_unapproved:
     text: Counting rules are in draft status until reviewed by a Vision Zero analyst. Treat counts as preliminary.
     applies_to: [collision_counts, ksi_counts]
