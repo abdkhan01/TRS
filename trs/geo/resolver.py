@@ -6,6 +6,9 @@ from collections import deque
 from pathlib import Path
 from typing import Any
 
+import duckdb
+
+from trs.geo.reference import canonical_street_name
 from trs.storage.duckdb import connect
 
 
@@ -42,7 +45,6 @@ class LocationResolver:
 
 
 _SEPARATOR = re.compile(r"\s*(?:/|&|\band\b|\bat\b)\s*", re.IGNORECASE)
-_TOKEN = re.compile(r"[^a-z0-9]+")
 _CORRIDOR_TEXT = re.compile(
     r"^\s*(?P<street>.+?)\s+from\s+(?P<start>.+?)\s+to\s+(?P<end>.+?)\s*$",
     re.IGNORECASE,
@@ -50,7 +52,7 @@ _CORRIDOR_TEXT = re.compile(
 
 
 def _normalise(value: str) -> str:
-    return " ".join(_TOKEN.sub(" ", value.lower()).split())
+    return canonical_street_name(value)
 
 
 def _street_parts(value: str) -> list[str]:
@@ -100,6 +102,65 @@ def _manual_point(spec: dict[str, Any]) -> dict[str, Any] | None:
     }
 
 
+def _placeholders(values: set[str]) -> str:
+    return ", ".join("?" for _ in values)
+
+
+def _street_id_candidates(
+    con: duckdb.DuckDBPyConnection,
+    requested: list[str],
+) -> list[set[str]]:
+    candidates: list[set[str]] = []
+    for part in requested:
+        rows = con.execute(
+            "select distinct street_id from location_street_alias where alias = ?",
+            [part],
+        ).fetchall()
+        street_ids = {str(row[0]) for row in rows}
+        if not street_ids:
+            raise LocationResolutionError(f"No canonical Toronto street matched '{part}'")
+        candidates.append(street_ids)
+    return candidates
+
+
+def _canonical_intersection_rows(
+    con: duckdb.DuckDBPyConnection,
+    requested: list[str],
+) -> list[tuple[str, str, str]]:
+    street_id_sets = _street_id_candidates(con, requested)
+    all_street_ids = set().union(*street_id_sets)
+    relationship_rows = con.execute(
+        f"""
+        select intersection_id, street_id
+        from location_intersection_street
+        where street_id in ({_placeholders(all_street_ids)})
+        """,
+        sorted(all_street_ids),
+    ).fetchall()
+    by_intersection: dict[str, set[str]] = {}
+    for intersection_id, street_id in relationship_rows:
+        by_intersection.setdefault(str(intersection_id), set()).add(str(street_id))
+    intersection_ids = {
+        intersection_id
+        for intersection_id, available in by_intersection.items()
+        if all(available & candidates for candidates in street_id_sets)
+    }
+    if not intersection_ids:
+        return []
+    return [
+        (str(row[0]), str(row[1]), str(row[2]))
+        for row in con.execute(
+            f"""
+            select intersection_id, official_description, geometry
+            from location_intersection
+            where intersection_id in ({_placeholders(intersection_ids)})
+            order by intersection_id
+            """,
+            sorted(intersection_ids),
+        ).fetchall()
+    ]
+
+
 def _intersection(db_path: Path, spec: dict[str, Any]) -> dict[str, Any]:
     input_text = str(spec.get("input", "")).strip()
     if not input_text:
@@ -107,48 +168,39 @@ def _intersection(db_path: Path, spec: dict[str, Any]) -> dict[str, Any]:
     requested = _street_parts(input_text)
     if not requested:
         raise LocationResolutionError("Named intersection has no searchable street name")
-    conditions = " and ".join('lower("INTERSECTION_DESC") like ?' for _ in requested)
-    parameters = [f"%{part.split()[0]}%" for part in requested]
     with connect(db_path, read_only=True) as con:
-        rows = con.execute(
-            f"""
-            select "INTERSECTION_ID", "INTERSECTION_DESC", "geometry"
-            from toronto_intersection_file
-            where "INTERSECTION_DESC" is not null and "geometry" is not null
-              and {conditions}
-            order by "INTERSECTION_ID"
-            limit 100
-            """,
-            parameters,
-        ).fetchall()
+        try:
+            rows = _canonical_intersection_rows(con, requested)
+        except duckdb.CatalogException as exc:
+            raise LocationResolutionError(
+                "Canonical location reference tables are unavailable; rerun ingestion and view creation"
+            ) from exc
 
-    candidates: list[tuple[int, str, str, list[float]]] = []
+    candidates: list[tuple[str, str, list[float]]] = []
     for intersection_id, description, geometry in rows:
-        available = _street_parts(str(description))
-        exact = sum(part in available for part in requested)
-        contains = sum(any(part in candidate or candidate in part for candidate in available) for part in requested)
-        if contains != len(requested):
-            continue
-        score = exact * 10 + contains
-        candidates.append((score, str(intersection_id), str(description), _first_point(_geometry_payload(geometry))))
+        candidates.append((str(intersection_id), str(description), _first_point(_geometry_payload(geometry))))
     if not candidates:
         raise LocationResolutionError(f"No local intersection matched '{input_text}'")
-    candidates.sort(key=lambda item: (-item[0], item[1]))
-    best_score = candidates[0][0]
-    best = [candidate for candidate in candidates if candidate[0] == best_score]
-    unique_points = {(round(item[3][0], 7), round(item[3][1], 7)) for item in best}
-    confidence = "high" if len(unique_points) == 1 and best_score >= len(requested) * 11 else "medium"
-    _, intersection_id, description, coordinates = best[0]
+    unique_points = {(round(item[2][0], 7), round(item[2][1], 7)) for item in candidates}
+    if len(unique_points) > 1:
+        names = ", ".join(item[1] for item in candidates[:5])
+        raise LocationResolutionError(
+            f"More than one canonical intersection matched '{input_text}': {names}"
+        )
+    intersection_id, description, coordinates = candidates[0]
     return {
         "input": input_text,
         "resolved_name": description,
         "geometry": {"type": "Point", "coordinates": coordinates, "crs": "EPSG:4326"},
         "crs": "EPSG:4326",
-        "match_confidence": confidence,
-        "method": "Local normalized street-name match against Toronto Intersection File.",
+        "match_confidence": "high",
+        "method": (
+            "Canonical street aliases matched official LINEAR_NAME_ID values; "
+            "their shared INTERSECTION_ID selected Toronto Intersection File geometry."
+        ),
         "intersection_id": intersection_id,
         "source_ids": ["toronto_intersection_file"],
-        "alternative_count": max(0, len(unique_points) - 1),
+        "alternative_count": 0,
     }
 
 
@@ -167,28 +219,37 @@ def _centreline_route(
     end_id = end.get("intersection_id")
     if not start_id or not end_id:
         return None
-    if street_name:
-        target_names = {_normalise(street_name)}
-    else:
-        start_parts = set(_street_parts(str(start.get("resolved_name", ""))))
-        end_parts = set(_street_parts(str(end.get("resolved_name", ""))))
-        target_names = start_parts & end_parts
-    if not target_names:
-        return None
-
     with connect(db_path, read_only=True) as con:
+        if street_name:
+            try:
+                target_ids = _street_id_candidates(con, [_normalise(street_name)])[0]
+            except (duckdb.CatalogException, LocationResolutionError):
+                return None
+        else:
+            rows = con.execute(
+                """
+                select street_id
+                from location_intersection_street
+                where intersection_id in (?, ?)
+                group by street_id
+                having count(distinct intersection_id) = 2
+                """,
+                [str(start_id), str(end_id)],
+            ).fetchall()
+            target_ids = {str(row[0]) for row in rows}
+        if not target_ids:
+            return None
         rows = con.execute(
             """
-            select "CENTRELINE_ID", "LINEAR_NAME_FULL", "FROM_INTERSECTION_ID",
+            select "CENTRELINE_ID", "LINEAR_NAME_ID", "LINEAR_NAME_FULL", "FROM_INTERSECTION_ID",
                    "TO_INTERSECTION_ID", "geometry"
             from toronto_centreline
             where "geometry" is not null
             """
         ).fetchall()
     edges: dict[str, list[tuple[str, str, str, str]]] = {}
-    for segment_id, name, from_id, to_id, geometry in rows:
-        normalized = _normalise(str(name))
-        if normalized not in target_names or not from_id or not to_id:
+    for segment_id, street_id, name, from_id, to_id, geometry in rows:
+        if str(street_id) not in target_ids or not from_id or not to_id:
             continue
         edge = (str(to_id), str(segment_id), str(geometry), str(name))
         edges.setdefault(str(from_id), []).append(edge)

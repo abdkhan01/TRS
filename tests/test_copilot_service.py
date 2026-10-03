@@ -110,6 +110,20 @@ def test_unresolved_location_returns_clarification_without_engine_call() -> None
     assert engine.calls == []
 
 
+def test_medium_confidence_location_requires_analyst_clarification() -> None:
+    engine = FakeEngine()
+    service = CopilotService(
+        engine,
+        resolver=FakeResolver(confidence="medium"),
+        intent_mapper=IntentMapper(year_provider=lambda: 2025),
+    )
+
+    response = service.ask("Give me a safety snapshot for Bloor St W and Spadina Ave")
+
+    assert response.status == "clarification"
+    assert engine.calls == []
+
+
 def test_refusal_guardrail_does_not_require_location_resolution() -> None:
     engine = FakeEngine()
     resolver = FakeResolver(confidence="low")

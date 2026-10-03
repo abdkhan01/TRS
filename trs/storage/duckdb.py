@@ -29,6 +29,9 @@ def create_parquet_views(db_path: Path, records: list[dict[str, Any]]) -> list[s
                 """
             )
             created.append(view_name)
+        from trs.geo.reference import create_location_reference_tables
+
+        create_location_reference_tables(con)
     return created
 
 

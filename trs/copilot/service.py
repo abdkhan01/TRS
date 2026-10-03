@@ -33,7 +33,7 @@ class LocationResolverPort(Protocol):
     def resolve(self, text: str) -> dict[str, Any]: ...
 
 
-_ACCEPTED_LOCATION_CONFIDENCE = frozenset({"manual_or_verified", "high", "medium"})
+_ACCEPTED_LOCATION_CONFIDENCE = frozenset({"manual_or_verified", "high"})
 
 
 def _elapsed_ms(start: float) -> float:

@@ -4,6 +4,7 @@ from pathlib import Path
 import duckdb
 
 from trs.evidence.engine import EvidenceEngine
+from trs.geo.reference import create_location_reference_tables
 from trs.geo.resolver import LocationResolver, resolve_location
 
 
@@ -26,12 +27,18 @@ def create_geospatial_fixture(path: Path) -> None:
         )
         con.execute(
             '''create table toronto_centreline
-               ("CENTRELINE_ID" varchar, "LINEAR_NAME_FULL" varchar,
+               ("CENTRELINE_ID" varchar, "LINEAR_NAME_ID" varchar,
+                "LINEAR_NAME_FULL" varchar, "LINEAR_NAME" varchar,
+                "LINEAR_NAME_TYPE" varchar, "LINEAR_NAME_DIR" varchar,
                 "FROM_INTERSECTION_ID" varchar, "TO_INTERSECTION_ID" varchar, "geometry" varchar)'''
         )
-        con.execute(
-            "insert into toronto_centreline values (?, ?, ?, ?, ?)",
-            ["C1", "Alpha St", "I1", "I2", geojson("MultiLineString", [[[-79.4000, 43.7000], [-79.3900, 43.7000]]])],
+        con.executemany(
+            "insert into toronto_centreline values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                ["C1", "S1", "Alpha St", "Alpha", "St", None, "I1", "I2", geojson("MultiLineString", [[[-79.4000, 43.7000], [-79.3900, 43.7000]]])],
+                ["C2", "S2", "Beta Ave", "Beta", "Ave", None, "I1", "I1", geojson("MultiLineString", [[[-79.4001, 43.6999], [-79.4000, 43.7000]]])],
+                ["C3", "S3", "Gamma Rd", "Gamma", "Rd", None, "I2", "I2", geojson("MultiLineString", [[[-79.3901, 43.6999], [-79.3900, 43.7000]]])],
+            ],
         )
         con.execute(
             '''create table traffic_collisions
@@ -90,6 +97,7 @@ def create_geospatial_fixture(path: Path) -> None:
                 ("V2", "ATR", "2024-01-01", "2024-01-03", "Far", "-79.5000", "43.8000", "2000", "2100", "1900", "42", "50", "55"),
             ],
         )
+        create_location_reference_tables(con)
 
 
 def test_named_intersection_resolver_and_snapshot(tmp_path: Path) -> None:
@@ -117,6 +125,44 @@ def test_named_intersection_resolver_and_snapshot(tmp_path: Path) -> None:
         "ksi_collisions",
         "toronto_intersection_file",
     }
+
+
+def test_named_intersection_uses_canonical_street_aliases(tmp_path: Path) -> None:
+    db_path = tmp_path / "geo.duckdb"
+    create_geospatial_fixture(db_path)
+
+    location = LocationResolver(db_path).resolve("Alpha Street at Beta Avenue")
+
+    assert location["intersection_id"] == "I1"
+    assert location["match_confidence"] == "high"
+    assert "LINEAR_NAME_ID" in location["method"]
+
+
+def test_ambiguous_canonical_intersection_is_not_auto_selected(tmp_path: Path) -> None:
+    db_path = tmp_path / "geo.duckdb"
+    create_geospatial_fixture(db_path)
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            "insert into toronto_intersection_file values (?, ?, ?)",
+            ["I3", "Alpha St / Beta Ave", geojson("MultiPoint", [[-79.3800, 43.7100]])],
+        )
+        con.executemany(
+            "insert into toronto_centreline values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                ["C4", "S1", "Alpha St", "Alpha", "St", None, "I3", "I3", geojson("MultiLineString", [[[-79.3801, 43.7100], [-79.3800, 43.7100]]])],
+                ["C5", "S2", "Beta Ave", "Beta", "Ave", None, "I3", "I3", geojson("MultiLineString", [[[-79.3800, 43.7099], [-79.3800, 43.7100]]])],
+            ],
+        )
+        create_location_reference_tables(con)
+
+    from trs.geo.resolver import LocationResolutionError
+
+    try:
+        LocationResolver(db_path).resolve("Alpha St and Beta Ave")
+    except LocationResolutionError as exc:
+        assert "More than one canonical intersection" in str(exc)
+    else:
+        raise AssertionError("ambiguous intersections must require analyst clarification")
 
 
 def test_location_scoped_trend_profile_and_context(tmp_path: Path) -> None:

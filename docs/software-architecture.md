@@ -320,6 +320,20 @@ LLM guardrails:
 
 MVP location resolution should be intentionally modest.
 
+The implemented local resolver now materializes a canonical reference layer
+from the official Toronto Centreline and Intersection File during DuckDB view
+creation. `LINEAR_NAME_ID`, `INTERSECTION_ID`, and Centreline endpoint
+relationships are the identity backbone. Deterministic street normalization
+and aliases are search aids only; parsed text is never treated as a canonical
+identifier. A named intersection must resolve to one unique official point.
+Ambiguous, low-confidence, and unresolved matches stop before evidence SQL is
+run and require analyst clarification or verified coordinates.
+
+Collision, KSI, ASE, and traffic-count rows are still selected spatially from
+their source coordinates. They are not permanently assigned an intersection
+ID merely because they fall inside a buffer; doing so would create false
+precision for midblock and approximately geocoded events.
+
 Version 0:
 
 - Support manually entered coordinates.

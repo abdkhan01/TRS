@@ -54,6 +54,13 @@ The UI uses `data/trs.duckdb` by default. Set `TRS_DB_PATH` or edit the path in 
 
 The interface supports automatic question classification or an explicit evidence template, date range, optional location and buffer inputs. Named intersections use forms such as `King St W and Spadina Ave`; corridors use `King St W from Spadina Ave to Bathurst St`. Every response exposes its status, evidence, refusals, source versions, location assumptions, methods, caveats, and reproducibility metadata. JSON and Markdown evidence reports are copy- and download-ready.
 
+During `create-views` (and therefore `all`), the ingestion pipeline also builds
+local canonical street and intersection reference tables from Toronto
+Centreline IDs and endpoint relationships. Street-name normalization supports
+lookup variants such as `St`/`Street`, but official IDs—not parsed strings—own
+location identity. Only a unique high-confidence canonical match or
+analyst-supplied coordinates can proceed to a location-scoped evidence query.
+
 The UI is deliberately local and single-user for the MVP. It does not authenticate users or host data, and it does not bypass evidence-engine refusals when a reviewed source or location resolver is unavailable.
 
 Run the 20-question routing and end-to-end evaluation suites with:
