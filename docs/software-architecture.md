@@ -1,6 +1,8 @@
 # Vision Zero Evidence Copilot - Software Architecture
 
-Last updated: 2026-05-16
+Last updated: 2026-10-06
+
+> Architecture decision record. Where this early target design differs from code, the implemented `trs/` package and `README.md` are authoritative.
 
 ## Architecture Decision
 

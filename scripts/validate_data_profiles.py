@@ -10,12 +10,13 @@ from __future__ import annotations
 
 import csv
 import json
-import re
 import sys
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -183,70 +184,38 @@ def validate_profile(profile_path: Path) -> list[str]:
     return errors
 
 
-def parse_scalar(value: str) -> Any:
-    value = value.strip()
-    if value.startswith("[") and value.endswith("]"):
-        inner = value[1:-1].strip()
-        if not inner:
-            return []
-        return [item.strip().strip('"').strip("'") for item in inner.split(",")]
-    value = value.strip('"').strip("'")
-    if re.fullmatch(r"-?\d+", value):
-        return int(value)
-    return value
-
-
 def load_registry_sources() -> dict[str, dict[str, Any]]:
-    """Read the small subset of YAML source fields needed for drift checks."""
+    """Load the production source registry and reject malformed or duplicate entries."""
     if not SOURCE_REGISTRY.exists():
         return {}
 
+    try:
+        payload = yaml.safe_load(SOURCE_REGISTRY.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as error:
+        raise ValueError(f"invalid YAML in {SOURCE_REGISTRY}: {error}") from error
+
+    entries = payload.get("sources", [])
+    if not isinstance(entries, list):
+        raise ValueError(f"{SOURCE_REGISTRY}: sources must be a list")
+
     sources: dict[str, dict[str, Any]] = {}
-    current: dict[str, Any] | None = None
-    current_key: str | None = None
-    in_sources = False
-
-    for raw_line in SOURCE_REGISTRY.read_text(encoding="utf-8").splitlines():
-        line = raw_line.split("#", 1)[0].rstrip()
-        if not line:
-            continue
-        if line == "sources:":
-            in_sources = True
-            continue
-        if not in_sources:
-            continue
-
-        source_match = re.match(r"^  - id:\s*(.+)$", line)
-        if source_match:
-            current = {"id": parse_scalar(source_match.group(1))}
-            sources[current["id"]] = current
-            current_key = None
-            continue
-        if current is None:
-            continue
-
-        field_match = re.match(r"^    ([A-Za-z0-9_]+):(?:\s*(.*))?$", line)
-        if field_match:
-            key, value = field_match.groups()
-            current_key = key
-            if value is not None and value != "":
-                current[key] = parse_scalar(value)
-            else:
-                current[key] = []
-            continue
-
-        list_match = re.match(r"^      -\s*(.+)$", line)
-        if list_match and current_key:
-            current.setdefault(current_key, [])
-            if isinstance(current[current_key], list):
-                current[current_key].append(parse_scalar(list_match.group(1)))
+    for index, entry in enumerate(entries, start=1):
+        if not isinstance(entry, dict) or not entry.get("id"):
+            raise ValueError(f"{SOURCE_REGISTRY}: source entry {index} must be a mapping with an id")
+        source_id = str(entry["id"])
+        if source_id in sources:
+            raise ValueError(f"{SOURCE_REGISTRY}: duplicate source id {source_id!r}")
+        sources[source_id] = entry
 
     return sources
 
 
 def validate_registry_alignment() -> list[str]:
     errors: list[str] = []
-    registry_sources = load_registry_sources()
+    try:
+        registry_sources = load_registry_sources()
+    except ValueError as error:
+        return [str(error)]
     if not registry_sources:
         errors.append("source registry not found or has no sources")
         return errors

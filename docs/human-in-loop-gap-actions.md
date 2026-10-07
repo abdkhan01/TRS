@@ -1,8 +1,8 @@
 # Human-In-Loop Gap Actions
 
-Last updated: 2026-05-18
+Last updated: 2026-10-06
 
-These Phase 1 hard-gap actions cannot be completed safely from the current local repository alone. They need analyst approval, policy/governance review, or access to sources that are not currently present in ignored local storage.
+These are human governance actions that remain after the local MVP implementation. The final column is historical working context, not an approval record; current approval gates are in `docs/mvp-acceptance.md`.
 
 | Priority | Gap | Human action needed | Why Codex cannot finish alone | Output needed before MVP answers | Humans' Replies
 |---|---|---|---|---|---|

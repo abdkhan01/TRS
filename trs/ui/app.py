@@ -33,6 +33,9 @@ def _fallback_error(question: str, template_id: str | None, error: Exception) ->
         "location": {
             "input": "",
             "resolved_name": None,
+            "geometry": None,
+            "geometry_type": "unresolved",
+            "source_ids": [],
             "match_confidence": "unresolved",
             "method": "The request did not reach a completed location-resolution step.",
         },
