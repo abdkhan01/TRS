@@ -1,0 +1,194 @@
+{
+  "profile_version": 1,
+  "dataset_id": "traffic_volume",
+  "dataset_name": "Traffic Volumes - Midblock Vehicle Speed, Volume and Classification Counts",
+  "status": "available_local",
+  "source_url": "https://open.toronto.ca/dataset/traffic-volumes-midblock-vehicle-speed-volume-and-classification-counts/",
+  "profiled_at": "2026-08-22",
+  "profiled_by": "Codex local CSV profile",
+  "analyst_approval_status": "approved_limited_mvp",
+  "canonical_grain": "volume_or_speed_observation",
+  "approved_counting_method": "approved for Phase 1 ingestion: count summary rows by latest_count_id; aggregate raw observations only within documented count windows",
+  "geometry": {
+    "type": "Point",
+    "crs": "EPSG:4326",
+    "longitude_field": "longitude",
+    "latitude_field": "latitude"
+  },
+  "candidate_primary_keys": ["_id", "latest_count_id"],
+  "date_fields": ["latest_count_date_start", "latest_count_date_end"],
+  "caveat_ids": [
+    "traffic_volume_coverage_uneven",
+    "observed_speed_not_posted_limit",
+    "descriptive_not_causal"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/traffic_volume/svc_most_recent_summary_data.csv",
+      "format": "csv",
+      "file_size_bytes": 2674349,
+      "row_count": 14223,
+      "column_count": 21,
+      "required_columns": [
+        "_id",
+        "latest_count_id",
+        "latest_count_type",
+        "latest_count_date_start",
+        "latest_count_date_end",
+        "location_name",
+        "longitude",
+        "latitude",
+        "centreline_id",
+        "avg_daily_vol",
+        "avg_speed",
+        "avg_85th_percentile_speed",
+        "avg_95th_percentile_speed"
+      ],
+      "key_checks": {
+        "_id": {
+          "missing": 0,
+          "distinct": 14223,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        },
+        "latest_count_id": {
+          "missing": 0,
+          "distinct": 14223,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        }
+      },
+      "date_checks": {
+        "latest_count_date_start": {
+          "missing_or_unparsed": 0,
+          "min": "1993-01-06",
+          "max": "2025-12-16"
+        },
+        "latest_count_date_end": {
+          "missing_or_unparsed": 0,
+          "min": "1993-01-06",
+          "max": "2025-12-18"
+        }
+      },
+      "observed_summary": {
+        "latest_count_type_counts": {
+          "ATR_SPEED_VOLUME": 9335,
+          "ATR_VOLUME": 4698,
+          "VEHICLE_CLASS": 190
+        }
+      }
+    },
+    {
+      "path": "datasets/traffic_volume/svc_raw_data_volume_2015_2019.csv",
+      "format": "csv",
+      "file_size_bytes": 82329918,
+      "row_count": 556608,
+      "column_count": 10,
+      "candidate_primary_keys": ["id", "count_id"],
+      "date_fields": ["time_start", "time_end"],
+      "required_columns": [
+        "id",
+        "count_id",
+        "location_name",
+        "longitude",
+        "latitude",
+        "centreline_id",
+        "time_start",
+        "time_end",
+        "direction",
+        "volume_15min"
+      ],
+      "key_checks": {
+        "id": {
+          "missing": 0,
+          "distinct": 556608,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        },
+        "count_id": {
+          "missing": 0,
+          "distinct": 1026,
+          "duplicate_values": 1026,
+          "duplicate_rows": 555582
+        }
+      },
+      "date_checks": {
+        "time_start": {
+          "missing_or_unparsed": 0,
+          "min": "2015-03-31",
+          "max": "2019-11-05"
+        },
+        "time_end": {
+          "missing_or_unparsed": 0,
+          "min": "2015-03-31",
+          "max": "2019-11-06"
+        }
+      },
+      "notes": [
+        "Raw count_id repeats across 15-minute interval rows; id is the unique row key."
+      ]
+    },
+    {
+      "path": "datasets/traffic_volume/svc_raw_data_volume_2020_2024.csv",
+      "format": "csv",
+      "file_size_bytes": 2491265,
+      "row_count": 17568,
+      "column_count": 10,
+      "candidate_primary_keys": ["id", "count_id"],
+      "date_fields": ["time_start", "time_end"],
+      "required_columns": [
+        "id",
+        "count_id",
+        "location_name",
+        "longitude",
+        "latitude",
+        "centreline_id",
+        "time_start",
+        "time_end",
+        "direction",
+        "volume_15min"
+      ],
+      "key_checks": {
+        "id": {
+          "missing": 0,
+          "distinct": 17568,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        },
+        "count_id": {
+          "missing": 0,
+          "distinct": 40,
+          "duplicate_values": 40,
+          "duplicate_rows": 17528
+        }
+      },
+      "date_checks": {
+        "time_start": {
+          "missing_or_unparsed": 0,
+          "min": "2021-04-27",
+          "max": "2022-08-18"
+        },
+        "time_end": {
+          "missing_or_unparsed": 0,
+          "min": "2021-04-27",
+          "max": "2022-08-19"
+        }
+      },
+      "notes": [
+        "Raw count_id repeats across 15-minute interval rows; id is the unique row key."
+      ]
+    },
+    {
+      "path": "datasets/traffic_volume/svc_data_dictionary.xlsx.xlsx",
+      "format": "xlsx",
+      "file_size_bytes": 56660,
+      "notes": [
+        "Data dictionary retained as local supporting material."
+      ]
+    }
+  ],
+  "open_questions": [
+    "Why is there a gap between the profiled 2020-2024 raw volume file and the 2025 latest summary counts?",
+    "Which raw fields should define vehicle classification rollups beyond volume_15min?"
+  ]
+}

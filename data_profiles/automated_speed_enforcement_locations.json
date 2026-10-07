@@ -1,0 +1,59 @@
+{
+  "profile_version": 1,
+  "dataset_id": "automated_speed_enforcement_locations",
+  "dataset_name": "Automated Speed Enforcement Locations",
+  "status": "available_local",
+  "source_url": "https://data.urbandatacentre.ca/catalogue/city-toronto-automated-speed-enforcement-locations",
+  "profiled_at": "2026-05-18",
+  "profiled_by": "Codex local CSV profile",
+  "analyst_approval_status": "approved_context_only",
+  "canonical_grain": "camera_location",
+  "approved_counting_method": "approved for Phase 1: count camera-location records only; never infer ticket volume or compliance",
+  "geometry": {
+    "type": "Point",
+    "crs": "EPSG:4326",
+    "source_field": "geometry"
+  },
+  "candidate_primary_keys": ["_id", "FID"],
+  "date_fields": [],
+  "caveat_ids": [
+    "ase_historical_context_only",
+    "ase_locations_not_charges",
+    "descriptive_not_causal"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/automated_speed_enforcement_cameras/e25e9460-a0e8-469c-b9fb-9a4837ac6c1c.csv",
+      "format": "csv",
+      "file_size_bytes": 28459,
+      "row_count": 198,
+      "column_count": 7,
+      "key_checks": {
+        "_id": {
+          "missing": 0,
+          "distinct": 198,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        },
+        "FID": {
+          "missing": 0,
+          "distinct": 198,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        }
+      }
+    },
+    {
+      "path": "datasets/automated_speed_enforcement_cameras/automated-speed-enforcement-locations-4326.geojson",
+      "format": "geojson",
+      "file_size_bytes": 54815,
+      "notes": [
+        "GeoJSON not fully scanned by the lightweight CSV validator."
+      ]
+    }
+  ],
+  "open_questions": [
+    "Does the location list represent current locations, historical locations, or both?",
+    "Which status values should be considered active context, if any?"
+  ]
+}

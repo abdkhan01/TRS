@@ -1,0 +1,62 @@
+{
+  "profile_version": 1,
+  "dataset_id": "school_locations_all_types",
+  "dataset_name": "School Locations - All Types",
+  "status": "available_local",
+  "source_url": "https://open.toronto.ca/dataset/school-locations-all-types/",
+  "profiled_at": "2026-05-18",
+  "profiled_by": "Codex local CSV profile",
+  "source_last_refreshed": "2026-02-20 17:59:51.264671",
+  "license": "License not specified",
+  "analyst_approval_status": "approved_context_only",
+  "canonical_grain": "school_location",
+  "geometry": {
+    "type": "Point",
+    "crs": "EPSG:4326",
+    "field": "geometry"
+  },
+  "candidate_primary_keys": ["_id", "GEO_ID", "ADDRESS_POINT_ID"],
+  "caveat_ids": [
+    "csz_school_context_not_proof"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/school_locations_all_types/school-locations-all-types-data-4326.csv",
+      "format": "csv",
+      "file_size_bytes": 365304,
+      "row_count": 1171,
+      "column_count": 25,
+      "key_checks": {
+        "_id": {
+          "missing": 0,
+          "distinct": 1171,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        },
+        "GEO_ID": {
+          "missing": 0,
+          "distinct": 1157,
+          "duplicate_values": 13,
+          "duplicate_rows": 14
+        },
+        "ADDRESS_POINT_ID": {
+          "missing": 0,
+          "distinct": 1157,
+          "duplicate_values": 13,
+          "duplicate_rows": 14
+        }
+      }
+    },
+    {
+      "path": "datasets/school_locations_all_types/school-locations-all-types-data-4326.gpkg",
+      "format": "gpkg",
+      "file_size_bytes": 512000
+    }
+  ],
+  "limitations": [
+    "School proximity is contextual only and does not establish legal Community Safety Zone status."
+  ],
+  "open_questions": [
+    "Confirm whether repeated GEO_ID and ADDRESS_POINT_ID values represent multiple school programs at one physical site."
+  ]
+}

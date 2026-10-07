@@ -1,0 +1,54 @@
+{
+  "profile_version": 1,
+  "dataset_id": "area_speed_limit_reductions",
+  "dataset_name": "Area Speed Limit Reductions",
+  "status": "available_local",
+  "source_url": "https://open.toronto.ca/dataset/area-speed-limit-reductions/",
+  "profiled_at": "2026-05-18",
+  "profiled_by": "Codex local CSV profile",
+  "source_last_refreshed": "2026-02-24 20:51:54.17522",
+  "license": "License not specified",
+  "analyst_approval_status": "approved_context_only",
+  "canonical_grain": "ward_or_area_program_status",
+  "geometry": {
+    "type": "Polygon",
+    "crs": "EPSG:4326",
+    "field": "geometry"
+  },
+  "candidate_primary_keys": ["_id", "WARD_NUMBER"],
+  "caveat_ids": [
+    "speed_limit_source_incomplete"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/area_speed_limit_reductions/traffic-calming-database-4326.csv",
+      "format": "csv",
+      "file_size_bytes": 998977,
+      "row_count": 25,
+      "column_count": 6,
+      "key_checks": {
+        "_id": {
+          "missing": 0,
+          "distinct": 25,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        },
+        "WARD_NUMBER": {
+          "missing": 0,
+          "distinct": 25,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        }
+      }
+    },
+    {
+      "path": "datasets/area_speed_limit_reductions/traffic-calming-database-4326.gpkg",
+      "format": "gpkg",
+      "file_size_bytes": 524288
+    }
+  ],
+  "limitations": [
+    "Program status by ward or area is not a complete current posted-speed-limit authority.",
+    "The source metadata says historic status changes are not stored."
+  ]
+}
