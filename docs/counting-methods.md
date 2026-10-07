@@ -23,8 +23,8 @@ The Evidence Copilot must avoid counting rows when the analytical question requi
 
 | Dataset | Current row grain assumption | MVP counting rule | Approval status |
 |---|---|---|---|
-| Traffic collisions | Collision occurrence row. Local profile found 772,516 rows and 772,516 distinct `_id` values. | Count unique `_id`; for Phase 1, `_id` is approved as one unique traffic collision occurrence. | Approved for Phase 1 ingestion and deterministic counts |
-| Motor vehicle collisions involving KSI | Involved-party row. Local profile found 18,957 rows and 4,956 distinct `ACCNUM` values. | Count unique `ACCNUM` for event-level KSI collisions; count rows only for involved-party breakdowns. | Approved for Phase 1 event counts and ingestion |
+| Traffic collisions | Collision occurrence row. | Count rows by `_id` only after verifying `_id` is unique and one row equals one collision occurrence. | Needs validation |
+| Motor vehicle collisions involving KSI | Involved-party row. | Count a normalized event key: usable `ACCNUM` when present, otherwise a provisional composite of `DATE`, `TIME`, `STREET1`, `STREET2`, and geometry. Count rows only for involved-party breakdowns. | Needs analyst approval |
 | Traffic volume summary | Latest count summary per location/count id. | Count observations by `latest_count_id`; do not infer continuous coverage. | Needs validation |
 | Traffic volume raw files | Observation rows by count/time/bin. | Aggregate only within known count windows and method-specific fields. | Needs validation |
 | ASE camera locations | Camera location row. Local profile found 198 rows and 198 distinct `_id`/`FID` values. | Count camera-location records only; never infer ticket volume or compliance. | Approved for Phase 1 historical location context |
@@ -50,6 +50,8 @@ The command compares ignored local CSV files with tracked `data_profiles/*.json`
 
 ## Open Analyst Questions
 
-1. Which injury/severity fields should be used for official pedestrian, cyclist, motorist, fatal, and serious injury summaries?
-2. What default intersection buffer should be used for a first MVP: 30m, 50m, 100m, or analyst-selected?
-3. What corridor method should be used first: named street between cross streets, selected Centreline segments, or buffered polyline?
+1. Is the hybrid KSI event key approved, including its composite fallback for years where `ACCNUM` is missing?
+2. Does the traffic-collisions file contain one row per collision occurrence for all years?
+3. Which injury/severity fields should be used for official pedestrian, cyclist, motorist, fatal, and serious injury summaries?
+4. What default intersection buffer should be used for a first MVP: 30m, 50m, 100m, or analyst-selected?
+5. What corridor method should be used first: named street between cross streets, selected Centreline segments, or buffered polyline?

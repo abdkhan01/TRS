@@ -17,6 +17,7 @@ sources:
     analyst_approval_status: approved_for_mvp
     grain: collision_event
     geometry: point_wgs84
+    date_range: 2014-2025
     candidate_primary_keys: [_id]
     date_fields: [OCC_DATE, OCC_YEAR, OCC_MONTH, OCC_DOW, OCC_HOUR]
     required_for:
@@ -39,6 +40,7 @@ sources:
     analyst_approval_status: approved_limited_mvp
     grain: involved_party_candidate
     geometry: point_wgs84
+    date_range: 2006-2023
     candidate_primary_keys: [_id]
     candidate_event_keys: [ACCNUM]
     date_fields: [DATE, TIME]
@@ -66,6 +68,7 @@ sources:
     analyst_approval_status: approved_limited_mvp
     grain: volume_or_speed_observation
     geometry: point_wgs84
+    date_range: 1993-2025
     candidate_primary_keys: [_id, latest_count_id]
     date_fields: [latest_count_date_start, latest_count_date_end]
     required_for:
@@ -86,6 +89,7 @@ sources:
     profile_path: data_profiles/automated_speed_enforcement_locations.json
     analyst_approval_status: approved_context_only
     grain: camera_location
+    date_range: historical locations; source snapshot ingested 2026-08-30
     geometry: point_wgs84
     candidate_primary_keys: [_id, FID]
     required_for:

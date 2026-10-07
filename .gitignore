@@ -13,6 +13,7 @@ data/processed/
 data/*.duckdb
 data/*.duckdb.wal
 data/manifest.lock.json
+data/audit/
 
 # C extensions
 *.so

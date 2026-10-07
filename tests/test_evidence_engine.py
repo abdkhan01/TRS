@@ -14,6 +14,10 @@ def create_fixture_database(path: Path) -> None:
             create table ksi_collisions (
                 "ACCNUM" varchar,
                 "DATE" varchar,
+                "TIME" varchar,
+                "STREET1" varchar,
+                "STREET2" varchar,
+                "geometry" varchar,
                 "LIGHT" varchar,
                 "VISIBILITY" varchar,
                 "IMPACTYPE" varchar
@@ -21,13 +25,13 @@ def create_fixture_database(path: Path) -> None:
             """
         )
         con.executemany(
-            "insert into ksi_collisions values (?, ?, ?, ?, ?)",
+            "insert into ksi_collisions values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
-                ("A", "2021-01-10", "Daylight", "Clear", "Turning Movement"),
-                ("A", "2021-01-10", "Daylight", "Clear", "Turning Movement"),
-                ("B", "2021-05-01", "Dark", "Rain", "Rear End"),
-                ("C", "2022-07-01", "Daylight", "Clear", "Angle"),
-                ("D", "2019-07-01", "Daylight", "Clear", "Angle"),
+                ("A", "2021-01-10", "1015", "King St W", "Spadina Ave", "point-a", "Daylight", "Clear", "Turning Movement"),
+                ("A", "2021-01-10", "1015", "King St W", "Spadina Ave", "point-a", "Daylight", "Clear", "Turning Movement"),
+                ("B", "2021-05-01", "2010", "Queen St W", "Bathurst St", "point-b", "Dark", "Rain", "Rear End"),
+                ("C", "2022-07-01", "0900", "Bloor St W", "Dufferin St", "point-c", "Daylight", "Clear", "Angle"),
+                ("D", "2019-07-01", "1200", "Danforth Ave", "Pape Ave", "point-d", "Daylight", "Clear", "Angle"),
             ],
         )
         con.execute(
@@ -70,6 +74,30 @@ def test_ksi_trend_counts_distinct_collision_events(tmp_path: Path) -> None:
     ]
     assert packet["results"]["ksi_collision_count"] == 3
     assert packet["query_metadata"]["data_manifest_version"] is None
+
+
+def test_ksi_trend_uses_occurrence_fallback_when_accnum_is_missing(tmp_path: Path) -> None:
+    db_path = tmp_path / "fixture.duckdb"
+    create_fixture_database(db_path)
+    with duckdb.connect(str(db_path)) as con:
+        con.executemany(
+            "insert into ksi_collisions values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                ("None", "2021-08-20", "0815", "Yonge St", "Eglinton Ave", "point-x", "Daylight", "Clear", "Angle"),
+                ("None", "2021-08-20", "0815", "Yonge St", "Eglinton Ave", "point-x", "Daylight", "Clear", "Angle"),
+                (None, "2021-09-21", "2210", "Bay St", "College St", "point-y", "Dark", "Rain", "Rear End"),
+            ],
+        )
+
+    packet = EvidenceEngine(db_path).run(
+        "ksi_trend",
+        question="KSI trend for 2021",
+        parameters={"start_year": 2021, "end_year": 2021},
+        lock_path=tmp_path / "missing.lock.json",
+    )
+
+    assert packet["results"]["ksi_collision_count"] == 4
+    assert "fallback key" in packet["methods"][0]
 
 
 def test_collision_profile_separates_event_and_ksi_dimensions(tmp_path: Path) -> None:
@@ -130,11 +158,11 @@ def test_engine_rejects_missing_template_parameters(tmp_path: Path) -> None:
 
 
 def test_engine_rejects_unknown_template_parameters(tmp_path: Path) -> None:
-    with pytest.raises(CatalogError, match="Unknown parameters.*buffer_meters"):
+    with pytest.raises(CatalogError, match="Unknown parameters.*unsupported_parameter"):
         EvidenceEngine(tmp_path / "not-needed.duckdb").run(
             "ksi_trend",
             question="Show the KSI trend",
-            parameters={"start_year": 2021, "end_year": 2022, "buffer_meters": 50},
+            parameters={"start_year": 2021, "end_year": 2022, "unsupported_parameter": 50},
         )
 
 
