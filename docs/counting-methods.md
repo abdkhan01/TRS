@@ -27,7 +27,17 @@ The Evidence Copilot must avoid counting rows when the analytical question requi
 | Motor vehicle collisions involving KSI | Involved-party row. | Count a normalized event key: usable `ACCNUM` when present, otherwise a provisional composite of `DATE`, `TIME`, `STREET1`, `STREET2`, and geometry. Count rows only for involved-party breakdowns. | Needs analyst approval |
 | Traffic volume summary | Latest count summary per location/count id. | Count observations by `latest_count_id`; do not infer continuous coverage. | Needs validation |
 | Traffic volume raw files | Observation rows by count/time/bin. | Aggregate only within known count windows and method-specific fields. | Needs validation |
-| ASE camera locations | Camera location row. | Count camera-location records only; never infer ticket volume or compliance. | Needs validation |
+| ASE camera locations | Camera location row. Local profile found 198 rows and 198 distinct `_id`/`FID` values. | Count camera-location records only; never infer ticket volume or compliance. | Approved for Phase 1 historical location context |
+
+## Local Validation Command
+
+Run this command after local datasets are refreshed:
+
+```bash
+python3 scripts/validate_data_profiles.py
+```
+
+The command compares ignored local CSV files with tracked `data_profiles/*.json` metadata for row counts, file sizes, key uniqueness, and date ranges. A failing validation should block evidence-packet generation from that source until the profile is updated and reviewed.
 
 ## Default Snapshot Rules
 

@@ -39,11 +39,28 @@
     },
     "location": {
       "type": "object",
-      "required": ["input", "match_confidence", "method"],
+      "required": ["input", "match_confidence", "method", "geometry_type", "source_ids"],
       "properties": {
         "input": {"type": "string"},
         "resolved_name": {"type": ["string", "null"]},
         "geometry": {"type": ["object", "null"]},
+        "geometry_type": {
+          "type": "string",
+          "enum": ["point", "intersection", "segment", "corridor", "polygon", "unresolved"]
+        },
+        "buffer_meters": {"type": ["number", "null"]},
+        "source_ids": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "matched_source_ids": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "unresolved_candidate_notes": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
         "match_confidence": {
           "type": "string",
           "enum": ["manual_or_verified", "high", "medium", "low", "unresolved"]
@@ -73,7 +90,11 @@
           "source_url": {"type": ["string", "null"]},
           "local_path": {"type": ["string", "null"]},
           "date_range": {"type": ["string", "null"]},
-          "downloaded_at": {"type": ["string", "null"]}
+          "downloaded_at": {"type": ["string", "null"]},
+          "profile_path": {"type": ["string", "null"]},
+          "analyst_approval_status": {"type": ["string", "null"]},
+          "approved_grain": {"type": ["string", "null"]},
+          "counting_method": {"type": ["string", "null"]}
         },
         "additionalProperties": true
       }

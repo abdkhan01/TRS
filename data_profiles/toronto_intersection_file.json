@@ -1,0 +1,87 @@
+{
+  "profile_version": 1,
+  "dataset_id": "toronto_intersection_file",
+  "dataset_name": "Intersection File - City of Toronto",
+  "status": "available_local",
+  "source_url": "https://open.toronto.ca/dataset/intersection-file-city-of-toronto/",
+  "profiled_at": "2026-08-22",
+  "profiled_by": "Codex local CSV profile",
+  "source_last_refreshed": "2026-08-20 09:07:42.713883",
+  "license": "License not specified",
+  "analyst_approval_status": "approved_for_mvp",
+  "canonical_grain": "intersection",
+  "geometry": {
+    "type": "Point",
+    "crs": "EPSG:4326",
+    "field": "geometry"
+  },
+  "candidate_primary_keys": ["_id", "INTERSECTION_ID"],
+  "date_fields": ["DATE_EFFECTIVE", "DATE_EXPIRY"],
+  "caveat_ids": [
+    "location_match_uncertainty"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/toronto_intersection_file/centreline-intersection-4326.csv",
+      "format": "csv",
+      "file_size_bytes": 11721392,
+      "row_count": 46270,
+      "column_count": 21,
+      "required_columns": [
+        "_id",
+        "INTERSECTION_ID",
+        "DATE_EFFECTIVE",
+        "DATE_EXPIRY",
+        "ELEVATION_ID",
+        "INTERSECTION_DESC",
+        "CLASSIFICATION_DESC",
+        "ELEVATION_FEATURE_CODE_DESC",
+        "STATE",
+        "geometry"
+      ],
+      "key_checks": {
+        "_id": {
+          "missing": 0,
+          "distinct": 46270,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        },
+        "INTERSECTION_ID": {
+          "missing": 0,
+          "distinct": 44128,
+          "duplicate_values": 2138,
+          "duplicate_rows": 2142
+        }
+      },
+      "date_checks": {
+        "DATE_EFFECTIVE": {
+          "missing_or_unparsed": 0,
+          "min": "2008-12-11",
+          "max": "2026-08-18"
+        },
+        "DATE_EXPIRY": {
+          "missing_or_unparsed": 0,
+          "min": "2999-12-31",
+          "max": "2999-12-31"
+        }
+      },
+      "notes": [
+        "All rows in the refreshed CSV have DATE_EXPIRY 2999-12-31 and STATE 8.",
+        "Sampled duplicate INTERSECTION_ID values are overpass/underpass pseudo-intersections with multiple ELEVATION_ID values."
+      ]
+    },
+    {
+      "path": "datasets/toronto_intersection_file/centreline-intersection-4326.gpkg",
+      "format": "gpkg",
+      "file_size_bytes": 13512704,
+      "notes": [
+        "Downloaded for spatial work; CSV profile is the reproducible dependency-free validation target."
+      ]
+    }
+  ],
+  "open_questions": [
+    "Approve treating duplicated INTERSECTION_ID values as elevation-specific pseudo-intersection variants for resolver confidence.",
+    "Confirm whether DATE_EXPIRY 2999-12-31 and STATE 8 are sufficient filters for active intersection lookups.",
+    "Approve normalized street-name pair lookup and confidence scoring."
+  ]
+}

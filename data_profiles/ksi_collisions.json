@@ -1,0 +1,88 @@
+{
+  "profile_version": 1,
+  "dataset_id": "ksi_collisions",
+  "dataset_name": "Motor Vehicle Collisions Involving Killed Or Seriously Injured Persons",
+  "status": "available_local",
+  "source_url": "https://data.urbandatacentre.ca/catalogue/city-toronto-motor-vehicle-collisions-involving-killed-or-seriously-injured-persons",
+  "profiled_at": "2026-05-18",
+  "profiled_by": "Codex local CSV profile",
+  "analyst_approval_status": "approved_limited_mvp",
+  "canonical_grain": "involved_party_candidate",
+  "approved_counting_method": "approved for Phase 1: count unique ACCNUM for event-level KSI collisions; count rows only for involved-party breakdowns",
+  "geometry": {
+    "type": "Point",
+    "crs": "EPSG:4326",
+    "source_field": "geometry"
+  },
+  "candidate_primary_keys": ["_id"],
+  "candidate_event_keys": ["ACCNUM"],
+  "date_fields": ["DATE"],
+  "severity_fields": ["ACCLASS", "INJURY"],
+  "road_user_fields": [
+    "INVTYPE",
+    "VEHTYPE",
+    "PEDESTRIAN",
+    "CYCLIST",
+    "AUTOMOBILE",
+    "MOTORCYCLE",
+    "TRUCK",
+    "TRSN_CITY_VEH",
+    "EMERG_VEH",
+    "PASSENGER"
+  ],
+  "caveat_ids": [
+    "ksi_party_grain",
+    "descriptive_not_causal",
+    "location_match_uncertainty"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/motor_vehicle_collisions_ksi/c9b88f1f-863e-42f1-ada0-2c09b1e2eaa4.csv",
+      "format": "csv",
+      "file_size_bytes": 9242845,
+      "row_count": 18957,
+      "column_count": 50,
+      "key_checks": {
+        "_id": {
+          "missing": 0,
+          "distinct": 18957,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        },
+        "ACCNUM": {
+          "missing": 0,
+          "distinct": 4956,
+          "duplicate_values": 4701,
+          "duplicate_rows": 14001
+        }
+      },
+      "date_checks": {
+        "DATE": {
+          "missing_or_unparsed": 0,
+          "min": "2006-01-01",
+          "max": "2023-12-29"
+        }
+      },
+      "observed_values": {
+        "ACCLASS": ["Fatal", "Non-Fatal Injury", "Property Damage O", "None"],
+        "INJURY": ["Fatal", "Major", "Minor", "Minimal", "None"]
+      },
+      "notes": [
+        "ACCNUM duplication confirms this file is not one row per event.",
+        "Event-level KSI counts should not use raw row counts."
+      ]
+    },
+    {
+      "path": "datasets/motor_vehicle_collisions_ksi/motor-vehicle-collisions-with-ksi-data-4326.geojson",
+      "format": "geojson",
+      "file_size_bytes": 23961612,
+      "notes": [
+        "GeoJSON not fully scanned by the lightweight CSV validator."
+      ]
+    }
+  ],
+  "open_questions": [
+    "Can a Vision Zero analyst approve ACCNUM as the event-level identifier?",
+    "Should Property Damage O and None ACCLASS rows remain in KSI-derived summaries?"
+  ]
+}

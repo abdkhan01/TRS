@@ -7,7 +7,7 @@ questions:
     expected_template: ksi_trend
     expected_status: answered_after_location_sources_available
     required_sources: [ksi_collisions, toronto_intersection_file]
-    required_caveats: [ksi_party_grain, counting_rules_unapproved, location_match_uncertainty]
+    required_caveats: [ksi_party_grain, location_match_uncertainty]
 
   - id: GQ-002
     question: Give me a safety snapshot for Sheppard Ave E and Leona Dr.

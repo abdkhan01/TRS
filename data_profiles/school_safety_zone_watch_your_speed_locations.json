@@ -1,0 +1,67 @@
+{
+  "profile_version": 1,
+  "dataset_id": "school_safety_zone_watch_your_speed_locations",
+  "dataset_name": "School Safety Zone Watch Your Speed Program - Locations",
+  "status": "available_local",
+  "source_url": "https://open.toronto.ca/dataset/school-safety-zone-watch-your-speed-program-locations/",
+  "profiled_at": "2026-05-18",
+  "profiled_by": "Codex local CSV profile",
+  "source_last_refreshed": "2026-05-05 12:00:29.631934",
+  "license": "open-government-licence-toronto",
+  "analyst_approval_status": "approved_context_only",
+  "canonical_grain": "watch_your_speed_sign_location",
+  "geometry": {
+    "type": "Point",
+    "crs": "EPSG:4326",
+    "field": "geometry"
+  },
+  "candidate_primary_keys": ["_id", "sign_id"],
+  "date_fields": ["start_date", "end_date"],
+  "caveat_ids": [
+    "csz_school_context_not_proof"
+  ],
+  "local_files": [
+    {
+      "path": "datasets/school_safety_zone_watch_your_speed_locations/stationary-sign-locations-4326.csv",
+      "format": "csv",
+      "file_size_bytes": 239348,
+      "row_count": 1212,
+      "column_count": 14,
+      "key_checks": {
+        "_id": {
+          "missing": 0,
+          "distinct": 1212,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        },
+        "sign_id": {
+          "missing": 0,
+          "distinct": 1212,
+          "duplicate_values": 0,
+          "duplicate_rows": 0
+        }
+      },
+      "date_checks": {
+        "start_date": {
+          "missing_or_unparsed": 0,
+          "min": "2016-01-01",
+          "max": "2026-03-03"
+        },
+        "end_date": {
+          "missing_or_unparsed": 832,
+          "min": "2017-03-01",
+          "max": "2026-04-29"
+        }
+      }
+    },
+    {
+      "path": "datasets/school_safety_zone_watch_your_speed_locations/stationary-sign-locations-4326.gpkg",
+      "format": "gpkg",
+      "file_size_bytes": 417792
+    }
+  ],
+  "limitations": [
+    "This is a Watch Your Speed sign inventory in Safety Zones, not a complete authoritative School Safety Zone boundary inventory.",
+    "Source metadata says sign addresses may not be verified and speed limit values reflect recent operating parameters, not necessarily current or prior posted limits."
+  ]
+}
