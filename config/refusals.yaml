@@ -1,4 +1,9 @@
 refusals:
+  location_resolver_unavailable:
+    status: refused
+    reason: Location-specific evidence cannot be produced until the registered intersection and centreline sources are available through the approved location resolver.
+    allowed_alternative: Provide a citywide trend or profile using an implemented template.
+
   posted_speed_limit_source_missing:
     status: refused
     reason: Current posted speed limits cannot be determined because no approved complete posted-speed-limit source is registered.
