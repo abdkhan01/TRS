@@ -1,6 +1,8 @@
 # Vision Zero Evidence Copilot - Project Development Plan
 
-Last updated: 2026-05-16
+Last updated: 2026-10-06
+
+> Historical delivery plan. Phases 0–4 are substantially implemented; remaining pilot and governance gates are recorded in `docs/mvp-acceptance.md`.
 
 ## Goal
 

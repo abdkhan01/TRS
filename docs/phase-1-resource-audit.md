@@ -1,10 +1,10 @@
 # Phase 1 Resource Audit
 
-Last updated: 2026-05-18
+Last updated: 2026-10-06
 
 ## Purpose
 
-Phase 1 defines what the Vision Zero Evidence Copilot can and cannot prove before implementation begins. This audit records the resources needed for the first evidence model, separates hard dependencies from deferred sources, and gives analysts a concrete checklist for approving source use.
+This is the original Phase 1 baseline, retained as an audit trail. Current source readiness and MVP behaviour are defined by `config/data_sources.yaml`, `data_profiles/`, `docs/missing-data-backlog.md`, and `docs/mvp-acceptance.md`.
 
 ## Minimum Resource Set For Phase 1
 
@@ -35,7 +35,7 @@ Phase 1 defines what the Vision Zero Evidence Copilot can and cannot prove befor
 
 ## Hard Phase 1 Gaps
 
-1. **Location resolution is not yet trustworthy.** Centreline and an intersection file must be registered and profiled before analyst-grade intersection or corridor queries are implemented.
+1. **Location resolution has shipped locally but still needs human method approval.** The Centreline and Intersection File now back local intersection and corridor resolution; match confidence and geometry must be reviewed before official use.
 2. **Posted speed-limit coverage is incomplete.** The area speed-limit reductions dataset is useful context, but it must not be treated as a complete current speed-limit authority until verified.
 3. **Community Safety Zone status is not yet structured.** The City CSZ page provides policy context, but a structured segment/boundary source is still needed for factual "is this a CSZ?" answers.
 4. **KSI counting rules need analyst approval.** The KSI file appears to contain involved-party rows; official collision counts should use unique collision-event identifiers after validation.

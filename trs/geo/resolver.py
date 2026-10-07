@@ -95,6 +95,7 @@ def _manual_point(spec: dict[str, Any]) -> dict[str, Any] | None:
         "input": str(spec.get("input", f"{coordinates[1]}, {coordinates[0]}")),
         "resolved_name": str(spec.get("resolved_name") or "Manual coordinates"),
         "geometry": {"type": "Point", "coordinates": coordinates, "crs": "EPSG:4326"},
+        "geometry_type": "point",
         "crs": "EPSG:4326",
         "match_confidence": "manual_or_verified",
         "method": "Analyst-supplied WGS84 coordinates; no geocoder was used.",
@@ -192,6 +193,7 @@ def _intersection(db_path: Path, spec: dict[str, Any]) -> dict[str, Any]:
         "input": input_text,
         "resolved_name": description,
         "geometry": {"type": "Point", "coordinates": coordinates, "crs": "EPSG:4326"},
+        "geometry_type": "intersection",
         "crs": "EPSG:4326",
         "match_confidence": "high",
         "method": (
@@ -318,6 +320,7 @@ def _corridor(db_path: Path, spec: dict[str, Any]) -> dict[str, Any]:
         "input": str(spec.get("input", "Corridor endpoints")),
         "resolved_name": str(spec.get("resolved_name") or f"{start['resolved_name']} to {end['resolved_name']}"),
         "geometry": geometry,
+        "geometry_type": "corridor",
         "crs": "EPSG:4326",
         "match_confidence": confidence,
         "method": method,

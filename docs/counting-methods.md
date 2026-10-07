@@ -1,10 +1,10 @@
 # Counting Methods
 
-Last updated: 2026-05-18
+Last updated: 2026-10-06
 
 ## Purpose
 
-The Evidence Copilot must avoid counting rows when the analytical question requires counting collision events, involved parties, or observations. This document defines initial counting rules for analyst review.
+The Evidence Copilot must avoid counting rows when the analytical question requires counting collision events, involved parties, or observations. These are local-MVP rules; human approval remains necessary before official reporting.
 
 ## Canonical Grains
 
@@ -23,9 +23,9 @@ The Evidence Copilot must avoid counting rows when the analytical question requi
 
 | Dataset | Current row grain assumption | MVP counting rule | Approval status |
 |---|---|---|---|
-| Traffic collisions | Collision occurrence row. | Count rows by `_id` only after verifying `_id` is unique and one row equals one collision occurrence. | Needs validation |
-| Motor vehicle collisions involving KSI | Involved-party row. | Count a normalized event key: usable `ACCNUM` when present, otherwise a provisional composite of `DATE`, `TIME`, `STREET1`, `STREET2`, and geometry. Count rows only for involved-party breakdowns. | Needs analyst approval |
-| Traffic volume summary | Latest count summary per location/count id. | Count observations by `latest_count_id`; do not infer continuous coverage. | Needs validation |
+| Traffic collisions | Collision occurrence row. | Count distinct `_id`; the local profile records a unique `_id` for every profiled row. | Approved for local MVP; severity and road-user definitions remain for review |
+| Motor vehicle collisions involving KSI | Involved-party row. | Count a normalized event key: usable `ACCNUM` when present, otherwise a provisional composite of `DATE`, `TIME`, `STREET1`, `STREET2`, and geometry. Count rows only for involved-party breakdowns. | Limited local MVP; hybrid fallback requires analyst approval |
+| Traffic volume summary | Latest count summary per location/count id. | Count observations by `latest_count_id`; do not infer continuous coverage. | Limited local MVP with coverage caveat |
 | Traffic volume raw files | Observation rows by count/time/bin. | Aggregate only within known count windows and method-specific fields. | Needs validation |
 | ASE camera locations | Camera location row. Local profile found 198 rows and 198 distinct `_id`/`FID` values. | Count camera-location records only; never infer ticket volume or compliance. | Approved for Phase 1 historical location context |
 
@@ -51,7 +51,7 @@ The command compares ignored local CSV files with tracked `data_profiles/*.json`
 ## Open Analyst Questions
 
 1. Is the hybrid KSI event key approved, including its composite fallback for years where `ACCNUM` is missing?
-2. Does the traffic-collisions file contain one row per collision occurrence for all years?
+2. Confirm that the locally profiled traffic-collision `_id` rule remains acceptable after each source refresh.
 3. Which injury/severity fields should be used for official pedestrian, cyclist, motorist, fatal, and serious injury summaries?
 4. What default intersection buffer should be used for a first MVP: 30m, 50m, 100m, or analyst-selected?
 5. What corridor method should be used first: named street between cross streets, selected Centreline segments, or buffered polyline?

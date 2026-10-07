@@ -1,6 +1,6 @@
 # Evidence Model
 
-Last updated: 2026-05-18
+Last updated: 2026-10-06
 
 ## Purpose
 

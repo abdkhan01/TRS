@@ -1,5 +1,7 @@
 # TRS – Vision Zero AI Copilot (POC)
 
+> **Current MVP decision (2026-10-06):** This remains the original discovery brief. The implemented MVP is the narrower **Vision Zero Evidence Copilot**: a local, deterministic evidence tool for analyst review. It does not currently provide legal/policy explanations, causal conclusions, current posted-speed or CSZ determinations, or safety recommendations. See `docs/mvp-acceptance.md` for the current boundary.
+
 # Purpose
 
 The TRS project aims to build an **AI-powered Vision Zero Copilot** for the City of Toronto. The goal is to assist Vision Zero analysts, planners, and policy teams by enabling **data-grounded answers, reasoning, and recommendations** that are not possible with a generic LLM alone.

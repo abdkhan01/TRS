@@ -1,6 +1,8 @@
 # Vision Zero Evidence Copilot - Project Feasibility Plan
 
-Last updated: 2026-05-16
+Last updated: 2026-10-06
+
+> Historical feasibility and scope-decision record. The MVP described here has been implemented as a local evidence product; use `docs/mvp-acceptance.md` for its current state.
 
 ## Co-founder Verdict
 

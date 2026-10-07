@@ -14,9 +14,40 @@ def unresolved_location(input_text: str = "Toronto citywide") -> dict[str, Any]:
         "input": input_text,
         "resolved_name": None,
         "geometry": None,
+        "geometry_type": "unresolved",
+        "source_ids": [],
         "match_confidence": "unresolved",
         "method": "No location resolver applied; results are citywide.",
     }
+
+
+def normalise_location(location: dict[str, Any] | None) -> dict[str, Any]:
+    """Complete the public location contract for legacy and resolver payloads."""
+    if location is None:
+        return unresolved_location()
+
+    normalised = dict(location)
+    geometry = normalised.get("geometry")
+    geojson_type = geometry.get("type") if isinstance(geometry, dict) else None
+    if normalised.get("geometry_type") not in {
+        "point", "intersection", "segment", "corridor", "polygon", "unresolved"
+    }:
+        if normalised.get("intersection_id"):
+            normalised["geometry_type"] = "intersection"
+        elif geojson_type in {"LineString", "MultiLineString"}:
+            normalised["geometry_type"] = "corridor"
+        elif geojson_type in {"Polygon", "MultiPolygon"}:
+            normalised["geometry_type"] = "polygon"
+        elif geojson_type == "Point":
+            normalised["geometry_type"] = "point"
+        else:
+            normalised["geometry_type"] = "unresolved"
+    normalised["source_ids"] = list(dict.fromkeys(str(item) for item in normalised.get("source_ids", [])))
+    normalised.setdefault("input", "")
+    normalised.setdefault("resolved_name", None)
+    normalised.setdefault("match_confidence", "unresolved")
+    normalised.setdefault("method", "No location-resolution method was recorded.")
+    return normalised
 
 
 def build_evidence_packet(
@@ -54,7 +85,7 @@ def build_evidence_packet(
         "question": question,
         "template_id": template_id,
         "status": status,
-        "location": location or unresolved_location(),
+        "location": normalise_location(location),
         "parameters": parameters or {},
         "results": results or {},
         "sources": source_metadata(
