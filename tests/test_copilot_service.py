@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+import duckdb
+
 from trs.copilot import CopilotService, IntentMapper, JsonlAuditLogger, load_audit_metrics
 
 
@@ -121,6 +123,26 @@ def test_medium_confidence_location_requires_analyst_clarification() -> None:
     response = service.ask("Give me a safety snapshot for Bloor St W and Spadina Ave")
 
     assert response.status == "clarification"
+    assert engine.calls == []
+
+
+def test_database_lock_during_location_resolution_returns_operational_error() -> None:
+    class LockedResolver:
+        def resolve(self, text: str) -> dict[str, Any]:
+            raise duckdb.IOException("IO Error: Could not set lock on file")
+
+    engine = FakeEngine()
+    service = CopilotService(
+        engine,
+        resolver=LockedResolver(),
+        intent_mapper=IntentMapper(year_provider=lambda: 2025),
+    )
+
+    response = service.ask("Give me a safety snapshot for Bloor St W and Spadina Ave")
+
+    assert response.status == "error"
+    assert "locked by another process" in response.summary
+    assert "read-only mode" in response.summary
     assert engine.calls == []
 
 

@@ -3,6 +3,7 @@ from pathlib import Path
 
 import duckdb
 
+from trs.copilot.service import CopilotService
 from trs.evidence.engine import EvidenceEngine
 from trs.geo.reference import create_location_reference_tables
 from trs.geo.resolver import LocationResolver, resolve_location
@@ -23,6 +24,11 @@ def create_geospatial_fixture(path: Path) -> None:
             [
                 ("I1", "Alpha St / Beta Ave", geojson("MultiPoint", [[-79.4000, 43.7000]])),
                 ("I2", "Alpha St / Gamma Rd", geojson("MultiPoint", [[-79.3900, 43.7000]])),
+                (
+                    "I4",
+                    "Don Mills Rd / Eglinton Ave E",
+                    geojson("MultiPoint", [[-79.3388739, 43.7205008]]),
+                ),
             ],
         )
         con.execute(
@@ -38,6 +44,8 @@ def create_geospatial_fixture(path: Path) -> None:
                 ["C1", "S1", "Alpha St", "Alpha", "St", None, "I1", "I2", geojson("MultiLineString", [[[-79.4000, 43.7000], [-79.3900, 43.7000]]])],
                 ["C2", "S2", "Beta Ave", "Beta", "Ave", None, "I1", "I1", geojson("MultiLineString", [[[-79.4001, 43.6999], [-79.4000, 43.7000]]])],
                 ["C3", "S3", "Gamma Rd", "Gamma", "Rd", None, "I2", "I2", geojson("MultiLineString", [[[-79.3901, 43.6999], [-79.3900, 43.7000]]])],
+                ["C4", "S4", "Don Mills Rd", "Don Mills", "Rd", None, "I4", "I4", geojson("MultiLineString", [[[-79.3389, 43.7204], [-79.3388739, 43.7205008]]])],
+                ["C5", "S5", "Eglinton Ave E", "Eglinton", "Ave", "E", "I4", "I4", geojson("MultiLineString", [[[-79.3390, 43.7205], [-79.3388739, 43.7205008]]])],
             ],
         )
         con.execute(
@@ -68,6 +76,7 @@ def create_geospatial_fixture(path: Path) -> None:
                 ("K1", "2022-02-01", "830", "Alpha St", "Beta Ave", "Daylight", "Clear", "Angle", "Fatal", "Dry", geojson("Point", [-79.4001, 43.7000])),
                 ("K2", "2022-03-01", "1900", "Alpha St", "Midblock", "Dark", "Rain", "Rear End", "Injury", "Wet", geojson("Point", [-79.3950, 43.7001])),
                 ("K3", "2022-04-01", "1200", "Far St", "Away Rd", "Daylight", "Clear", "Angle", "Injury", "Dry", geojson("Point", [-79.4500, 43.7500])),
+                ("K4", "2022-05-01", "900", "DVP S EGLINTON RAMP E", "EGLINTON AVE E", "Daylight", "Clear", "Angle", "Injury", "Dry", geojson("Point", [-79.33279, 43.722145])),
             ],
         )
         con.execute(
@@ -208,6 +217,30 @@ def test_location_scoped_trend_profile_and_context(tmp_path: Path) -> None:
     assert ase["results"]["camera_location_count"] == 1
     assert volume["results"]["observation_count"] == 1
     assert volume["results"]["observations"][0]["average_observed_speed"] == 32.0
+
+
+def test_don_mills_query_includes_eglinton_dvp_ramp_ksi_row(tmp_path: Path) -> None:
+    db_path = tmp_path / "geo.duckdb"
+    create_geospatial_fixture(db_path)
+    response = CopilotService(
+        db_path,
+        resolver=LocationResolver(db_path),
+    ).answer(
+        "show the citywide KSI trend in don mills area",
+        template_id="ksi_trend",
+        location_text="Eglinton Ave East and Don Mills Road",
+        start_year=2020,
+        end_year=2026,
+        buffer_meters=1000,
+    )
+    packet = response["packet"]
+
+    assert response["status"] == "answered"
+    assert packet["location"]["resolved_name"] == "Don Mills Rd / Eglinton Ave E"
+    assert packet["results"] == {
+        "series": [{"year": 2022, "ksi_collision_count": 1}],
+        "ksi_collision_count": 1,
+    }
 
 
 def test_centreline_corridor_filters_to_route(tmp_path: Path) -> None:

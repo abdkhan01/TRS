@@ -6,6 +6,8 @@ from time import perf_counter
 from typing import Any, Protocol
 from uuid import uuid4
 
+import duckdb
+
 from trs.copilot.audit import JsonlAuditLogger
 from trs.copilot.intent import (
     LOCATION_REQUIRED_TEMPLATE_IDS,
@@ -53,6 +55,16 @@ def _validate_location(location: Any, *, input_text: str) -> dict[str, Any] | No
     result.setdefault("resolved_name", None)
     result.setdefault("geometry", None)
     return result
+
+
+def _database_unavailable_message(error: duckdb.IOException) -> str:
+    if "could not set lock" in str(error).lower():
+        return (
+            "The local DuckDB database is locked by another process using an incompatible "
+            "read-write connection. Close that connection or reopen the DuckDB UI in read-only "
+            "mode, then retry."
+        )
+    return "The local DuckDB database could not be opened. Check the configured database path and retry."
 
 
 class CopilotService:
@@ -220,6 +232,21 @@ class CopilotService:
             resolution_start = perf_counter()
             try:
                 candidate = self.resolver.resolve(decision.location_text)
+            except duckdb.IOException as exc:
+                metrics.update(
+                    {
+                        "location_runtime_ms": _elapsed_ms(resolution_start),
+                        "engine_runtime_ms": 0.0,
+                        "summary_runtime_ms": 0.0,
+                    }
+                )
+                response = CopilotResponse(
+                    status="error",
+                    decision=decision,
+                    summary=_database_unavailable_message(exc),
+                    metrics=metrics,
+                )
+                return self._finish(request_id, question, response, total_start)
             except Exception:
                 candidate = None
             metrics["location_runtime_ms"] = _elapsed_ms(resolution_start)

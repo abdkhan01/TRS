@@ -39,7 +39,10 @@ def main() -> int:
     args = build_parser().parse_args()
     db_path = args.db.expanduser().resolve()
 
-    with connect(db_path) as con:
+    # Keep the long-lived browser connection compatible with the Copilot's
+    # short-lived read-only evidence queries. A default read-write DuckDB
+    # connection takes an exclusive process lock and blocks the analyst UI.
+    with connect(db_path, read_only=True) as con:
         con.execute("INSTALL ui")
         con.execute("LOAD ui")
         con.execute(f"SET ui_local_port = {args.port}")

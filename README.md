@@ -52,6 +52,14 @@ If `.venv` does not exist yet, create it with `python3.12 -m venv .venv`. Raw so
 
 The UI uses `data/trs.duckdb` by default. Set `TRS_DB_PATH` or edit the path in the sidebar to use another local database. Query and export events are written to the ignored local path `data/audit/copilot.jsonl` by default; override it with `TRS_COPILOT_LOG_PATH` or in the sidebar.
 
+To inspect the same database in DuckDB's local web UI while the analyst UI is running, use the bundled read-only launcher:
+
+```bash
+.venv/bin/python scripts/run_duckdb_ui.py
+```
+
+Do not open `data/trs.duckdb` with a long-lived default `duckdb.connect(...)` call while using the Copilot. DuckDB treats that connection as read-write and takes a process lock that blocks the Copilot's read-only queries.
+
 The interface supports automatic question classification or an explicit evidence template, date range, optional location and buffer inputs. Named intersections use forms such as `King St W and Spadina Ave`; corridors use `King St W from Spadina Ave to Bathurst St`. Every response exposes its status, evidence, refusals, source versions, location assumptions, methods, caveats, and reproducibility metadata. JSON and Markdown evidence reports are copy- and download-ready.
 
 During `create-views` (and therefore `all`), the ingestion pipeline also builds
